@@ -2,4 +2,4 @@
 Krzysztof Zając 235698
 Kamil Kasjan 230211
 
-Poniedziałek 15.15 
+Poniedziałek 15.15
