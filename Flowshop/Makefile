@@ -1,10 +1,10 @@
 CXXFLAGS = -pedantic -Wall -std=c++17 
 
-__START__: lab1
-	./lab1
+__START__: flowshop.exe
+	./flowshop.exe
 
-lab1: main.o utility.o 
-	g++ -o lab1 utility.o main.o
+flowshop.exe: main.o utility.o 
+	g++ -o flowshop.exe utility.o main.o
 
 main.o: main.cpp 	
 	g++ -c ${CXXFLAGS} main.cpp

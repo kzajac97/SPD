@@ -13,8 +13,8 @@
 
 #include "process.hh"
 
-//namespace utility
-//{
+namespace utility
+{
     using numeric_t = int; //alias
 
     // reads file with given name
@@ -25,6 +25,10 @@
     // creates process objects from times 2D vector
     // where each row represents one process 
     std::vector<process> createProcesses(std::vector<std::vector<int> > times);
-//}
+    // <returns> arg when arg is > 0
+    // 0 when arg is < 0 </returns>
+    template <typename T>
+    T relu(T arg) { return (arg > 0) ? arg : 0; }
+}
 
 #endif

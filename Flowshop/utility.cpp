@@ -8,10 +8,9 @@
 
 #include "utility.hh"
 
-//using namespace utility;
-using numeric_t = int; //alias
+using namespace utility;
 
-std::vector<numeric_t> readFile(const std::string & filename)
+std::vector<numeric_t> utility::readFile(const std::string & filename)
 {
     std::ifstream inputFile(filename);
     std::vector<numeric_t> outputVec;
@@ -21,7 +20,7 @@ std::vector<numeric_t> readFile(const std::string & filename)
     return outputVec;
 }
 
-std::vector<std::vector<numeric_t> > createTimes(const std::vector<numeric_t> & input)
+std::vector<std::vector<numeric_t> > utility::createTimes(const std::vector<numeric_t> & input)
 {
     unsigned int nMachines = input[0]; //numerc of machines in input, int could be other numeric 
     unsigned int nProcesses = input[1]; //numer of processes for each machine
@@ -49,7 +48,7 @@ std::vector<std::vector<numeric_t> > createTimes(const std::vector<numeric_t> & 
     return times;
 }
 
-std::vector<process> createProcesses(std::vector<std::vector<int> > times)
+std::vector<process> utility::createProcesses(std::vector<std::vector<int> > times)
 {
     unsigned int index = 1;
     std::vector<process> result;
