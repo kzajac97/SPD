@@ -5,34 +5,50 @@
 #include "process.hh"
 #include "utility.hh"
 
-std::vector<process> create_processes(std::vector<std::vector<int> > times)
-{
-    unsigned int index = 1;
-    std::vector<process> result;
-    for(auto it : times)
-        { 
-            result.push_back( process(index,it) ); 
-            index++;
-        }
-
-    return result;
-}
-
+// computes permutations of given process vector
+// <input> process vector 
+// <returns> 2D vector containing process objects
+// in every possible order (permutations)
 std::vector<std::vector<process> > permutate(std::vector<process> processes)
 {
     std::vector<std::vector<process> > result;
 
-    do
-    {
-        result.push_back(processes);
-    } while (std::next_permutation(processes.begin(),processes.end()) );
+    do { result.push_back(processes); } 
+    while (std::next_permutation(processes.begin(),processes.end()));
 
     return result;
 }
 
+int getTimes(std::vector<process> processes)
+{
+    int executionTime;
+    int previousTime = 0;
+
+    for(int i=0; i < (int)processes.size(); ++i)  
+    { 
+        int currentTime = processes[i].getExecutionTime(); 
+        for(int j=i; j > 0; --j)
+        { 
+            if(currentTime - processes[j-1].getExecutionTime() > 0)
+                { previousTime += currentTime - processes[j-1].getExecutionTime(); } 
+        } 
+       
+        executionTime += currentTime - previousTime;
+    }
+
+    return executionTime;
+}
 
 int main(void)
 {
-    // not implemented 
-    return 0;
+    auto input = readFile("data.txt");
+    auto times = createTimes(input);
+    auto processes = createProcesses(times);
+    auto permutations = permutate(processes);
+
+    for(auto permutation : permutations)
+    {
+        std::cout << getTimes(permutation) << "\n";
+    }
+
 } 

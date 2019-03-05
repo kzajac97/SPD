@@ -8,7 +8,8 @@
 
 #include "utility.hh"
 
-using namespace utility;
+//using namespace utility;
+using numeric_t = int; //alias
 
 std::vector<numeric_t> readFile(const std::string & filename)
 {
@@ -22,8 +23,8 @@ std::vector<numeric_t> readFile(const std::string & filename)
 
 std::vector<std::vector<numeric_t> > createTimes(const std::vector<numeric_t> & input)
 {
-    auto nMachines = input[0]; //numerc of machines in input, int could be other numeric 
-    auto nProcesses = input[1]; //numer of processes for each machine
+    unsigned int nMachines = input[0]; //numerc of machines in input, int could be other numeric 
+    unsigned int nProcesses = input[1]; //numer of processes for each machine
     const unsigned int offset = 2; // offset from input vector begining to where actual times data is
     unsigned int index = offset; //index for input vector data, initially 2
     std::vector<std::vector<numeric_t> > times; // output 2D vector of times  
@@ -46,4 +47,17 @@ std::vector<std::vector<numeric_t> > createTimes(const std::vector<numeric_t> & 
     }
 
     return times;
+}
+
+std::vector<process> createProcesses(std::vector<std::vector<int> > times)
+{
+    unsigned int index = 1;
+    std::vector<process> result;
+    for(auto it : times)
+    { 
+        result.push_back(process(index,it)); 
+        index++;
+    }
+
+    return result;
 }
