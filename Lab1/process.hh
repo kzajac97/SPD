@@ -1,3 +1,6 @@
+#ifndef PROCESS_HH
+#define PROCESS_HH
+
 #pragma once
 
 #include <iostream>
@@ -25,3 +28,5 @@ class process
     bool operator > (process proc) { return this->_id > proc.get_id() ? true : false; } 
     bool operator < (process proc) { return this->_id < proc.get_id() ? true : false; }
 };
+
+#endif

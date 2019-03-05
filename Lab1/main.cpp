@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "process.hh"
+#include "utility.hh"
 
 std::vector<process> create_processes(std::vector<std::vector<int> > times)
 {
@@ -32,8 +33,6 @@ std::vector<std::vector<process> > permutate(std::vector<process> processes)
 
 int main(void)
 {
-    std::vector<std::vector<int> > times = {{1,2,3,4},
-                                {2,3,4,5}};
-
-    auto processes = create_processes(times);
-}
+    // not implemented 
+    return 0;
+} 
