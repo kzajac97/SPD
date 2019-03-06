@@ -20,38 +20,29 @@ std::vector<std::vector<process> > permutate(std::vector<process> processes)
     return result;
 }
 
-int getTimes(std::vector<process> processes)
+int makespan(std::vector<process> processes)
 {
-    // NOT IMPLEMENTED
-    
-    // int executionTime;
-    // int delayTime = 0;
-    // auto nMachines = processes[0].get_time().size();
-    // auto nProcesses = processes.size();
-    // std::vector<int> delayTimes;
-    // delayTimes.resize(nMachines);
+    int executionTime;
+    int delayTime;
+    auto timespan = utility::getTimespan(processes);
 
-    // for(auto proc : processes)
-    //     { executionTime += proc.getExecutionTime(); }
+    for(auto process : processes)
+        { executionTime += process.getExecutionTime(); }
 
-    // for(unsigned int mIter=1; mIter < nMachines; ++mIter)
-    // {
-    //     std::cout << "Process" << processes[i].get_id() << " ";
-    //     for(unsigned int pIter=0; pIter < nProcesses; ++pIter)
-    //     { 
-    //         std::cout << processes[pIter].get_time()[mIter-1] << " ";
-    //         int time2 = 0;
-    //         if(pIter > 0)
-    //             time2 += utility::relu(processes[pIter-1].get_time()[mIter]);
+    for(unsigned int mIter=0; mIter < timespan.size(); ++mIter)
+    {
+        for(unsigned int pIter=0; pIter < timespan[0].size(); ++pIter)
+        {
+            if(mIter == 0) { } // first machine 
+            else if(pIter == 0) // first process
+                { delayTime += utility::getColSum(timespan,0,mIter-1,0); }
+            else // delay between processes
+                { delayTime += utility::relu(timespan[mIter-1][pIter] - timespan[mIter][pIter-1]); }
             
-    //         delayTimes[mIter] += utility::relu(processes[pIter].get_time()[mIter-1] - time2);
+        }
+    } 
 
-    //     }
-    //     std::cout << "\n";
-    // }
-    // for(auto x : delayTimes) { std::cout << x << " "; }
-    // std::cout << "\n";
-    // return executionTime + delayTime;
+    return executionTime + delayTime;
 }
 
 int main(void)
@@ -59,10 +50,7 @@ int main(void)
     auto input = utility::readFile("data.txt");
     auto times = utility::createTimes(input);
     auto processes = utility::createProcesses(times);
-    auto permutations = permutate(processes);
-
-    for(auto permutation : permutations)
-    {
-        std::cout << getTimes(permutation) << "\n";
-    }
+    //auto permutations = permutate(processes);
+    auto x = makespan(processes);
+    std::cout << x << "\n";
 } 

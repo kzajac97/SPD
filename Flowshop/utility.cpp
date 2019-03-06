@@ -60,3 +60,20 @@ std::vector<process> utility::createProcesses(std::vector<std::vector<int> > tim
 
     return result;
 }
+
+std::vector<std::vector<int> > utility::getTimespan(std::vector<process> processes)
+{
+    std::vector<std::vector<int> > timespan;
+    // resize timespan to match number of processes and machines
+    timespan.resize(processes[0].get_time().size());
+    for(auto & it : timespan)
+        { it.resize(processes.size()); }
+
+    for(unsigned int i=0; i < timespan.size(); ++i)
+    {
+        for(unsigned int j=0; j < timespan[0].size(); ++j)
+            { timespan[i][j] = processes[j].get_time()[i]; }
+    }
+
+    return timespan;
+}
