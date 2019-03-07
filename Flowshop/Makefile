@@ -13,4 +13,4 @@ utility.o: utility.cpp
 	g++ -c ${CXXFLAGS} utility.cpp 
 
 clean:
-	rm -f *.o 
+	rm -f *.o *.exe

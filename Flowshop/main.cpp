@@ -20,29 +20,41 @@ std::vector<std::vector<process> > permutate(std::vector<process> processes)
     return result;
 }
 
-int makespan(std::vector<process> processes)
+// computes time of tasks execution for given process order
+// computes finish time of every task on every machine
+int maxspan(std::vector<process> processes)
 {
-    int executionTime;
-    int delayTime;
     auto timespan = utility::getTimespan(processes);
-
-    for(auto process : processes)
-        { executionTime += process.getExecutionTime(); }
-
-    for(unsigned int mIter=0; mIter < timespan.size(); ++mIter)
+    std::vector<std::vector<int> > tasks; // finish times
+    
+    tasks.resize(processes[0].get_time().size());
+    for(auto & it : tasks)
+        { it.resize(processes.size()); }
+    
+    for(unsigned int i=0; i < timespan.size(); ++i)
     {
-        for(unsigned int pIter=0; pIter < timespan[0].size(); ++pIter)
+        for(unsigned int j=0; j < timespan[i].size(); ++j)
         {
-            if(mIter == 0) { } // first machine 
-            else if(pIter == 0) // first process
-                { delayTime += utility::getColSum(timespan,0,mIter-1,0); }
-            else // delay between processes
-                { delayTime += utility::relu(timespan[mIter-1][pIter] - timespan[mIter][pIter-1]); }
+            if(i == 0 && j == 0) // first machine first process
+                { tasks[i][j] = timespan[i][j]; }
+            else if(i == 0 && j > 0) // first machine all processes
+                { tasks[i][j] = timespan[i][j] + tasks[i][j-1]; }
+            else if(i > 0 && j == 0) // first process all machines
+                { tasks[i][j] = timespan[i][j] + tasks[i-1][j]; }
+            else // all machines all processes
+            {
+                // machine waits for previous machine to complete task 
+                // and for itself to complete previous task
+                // delay is the longer of this two times
+                tasks[i][j] = (tasks[i-1][j] > tasks[i][j-1]) ?  
+                    timespan[i][j] + tasks[i-1][j] : 
+                    tasks[i][j] = timespan[i][j] + tasks[i][j-1]; // long ternary operator
+            }
             
         }
-    } 
-
-    return executionTime + delayTime;
+    }
+    // return finish time of last task on last machine
+    return tasks.back().back(); 
 }
 
 int main(void)
@@ -51,6 +63,6 @@ int main(void)
     auto times = utility::createTimes(input);
     auto processes = utility::createProcesses(times);
     //auto permutations = permutate(processes);
-    auto x = makespan(processes);
+    auto x = maxspan(processes);
     std::cout << x << "\n";
 } 
