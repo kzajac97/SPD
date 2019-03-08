@@ -81,6 +81,6 @@ int main(void)
     //auto x = maxspan(processes);
     //auto x = johnson(processes);
     auto x = utility::generateRandomTimes(3,4);
-    //utility::printVector2D(x);
+    utility::printVector2D(x);
     //std::cout << "\n";
 } 

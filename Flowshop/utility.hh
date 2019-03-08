@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <exception>
 #include <random>
+#include <functional>
+#include <random>
 
 #include "process.hh"
 
@@ -30,7 +32,10 @@ namespace utility
     //creates timespan for given process order
     std::vector<std::vector<int> > getTimespan(std::vector<process> processes);
     // generate random test data 
-    std::vector<std::vector<numeric_t> > generateRandomTimes(unsigned int nMachines, unsigned int nProcesses);
+    // <parms> number of machines and processes to generate times for
+    // default arguments with max and min distribution values 
+    std::vector<std::vector<numeric_t> > generateRandomTimes(unsigned int nMachines, unsigned int nProcesses, int minValue, int maxValue);
+    std::vector<std::vector<numeric_t> > generateRandomTimes(unsigned int nMachines, unsigned int nProcesses, int minValue=1, int maxValue=10);
     // <returns> arg when arg is > 0
     // 0 when arg is < 0 </returns>
     template <typename T>

@@ -1,12 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <chrono>
-#include <fstream>
-#include <iterator>
-#include <sstream>
-#include <algorithm>
-#include <functional>
-
 #include "utility.hh"
 
 using namespace utility;
@@ -47,6 +38,27 @@ std::vector<std::vector<numeric_t> > utility::createTimes(const std::vector<nume
     }
 
     return times;
+}
+
+std::vector<std::vector<numeric_t> > utility::generateRandomTimes(unsigned int nMachines, unsigned int nProcesses, int minValue, int maxValue)
+{
+    // times can't be negative 
+    if(minValue || maxValue < 0)
+        { throw std::invalid_argument("Invalid arguments"); }
+
+    // returned vector
+    std::vector<std::vector<numeric_t> > random_times(nProcesses,std::vector<numeric_t>(nMachines));
+    // create random distributions
+    std::random_device rnd;
+    std::mt19937 mersenne_engine(rnd());
+    std::uniform_int_distribution<> dist(minValue,maxValue);
+    
+    // create random vectors in lambda function capturing dist and engine variables
+    for(auto & iter : random_times)
+        { std::generate(iter.begin(),iter.end(),[&dist,&mersenne_engine]() mutable 
+            { return dist(mersenne_engine); }); }
+
+    return random_times;
 }
 
 std::vector<process> utility::createProcesses(std::vector<std::vector<int> > times)
