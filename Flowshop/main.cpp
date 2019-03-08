@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <array>
+#include <typeinfo>
 
 #include "process.hh"
 #include "utility.hh"
@@ -18,6 +19,20 @@ std::vector<std::vector<process> > permutate(std::vector<process> processes)
     while (std::next_permutation(processes.begin(),processes.end()));
 
     return result;
+}
+
+std::vector<process> johnson(std::vector<process> & processes)
+{
+    // sort processes vector with lamdba comparator
+    std::sort(processes.begin(),processes.end(),[](auto & lhs, auto & rhs)
+    {
+        auto left_times = lhs.get_time(); // get vectors of times of current processes
+        auto right_times = rhs.get_time();
+        // compare smallest time on every machine of current two processes
+        return *std::min_element(left_times.begin(),left_times.end()) < *std::min_element(right_times.begin(),right_times.end());
+    });
+
+    return processes;
 }
 
 // computes time of tasks execution for given process order
@@ -63,6 +78,9 @@ int main(void)
     auto times = utility::createTimes(input);
     auto processes = utility::createProcesses(times);
     //auto permutations = permutate(processes);
-    auto x = maxspan(processes);
-    std::cout << x << "\n";
+    //auto x = maxspan(processes);
+    //auto x = johnson(processes);
+    auto x = utility::generateRandomTimes(3,4);
+    //utility::printVector2D(x);
+    //std::cout << "\n";
 } 

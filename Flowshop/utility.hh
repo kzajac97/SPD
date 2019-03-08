@@ -11,6 +11,7 @@
 #include <sstream>
 #include <algorithm>
 #include <exception>
+#include <random>
 
 #include "process.hh"
 
@@ -28,6 +29,8 @@ namespace utility
     std::vector<process> createProcesses(std::vector<std::vector<int> > times);
     //creates timespan for given process order
     std::vector<std::vector<int> > getTimespan(std::vector<process> processes);
+    // generate random test data 
+    std::vector<std::vector<numeric_t> > generateRandomTimes(unsigned int nMachines, unsigned int nProcesses);
     // <returns> arg when arg is > 0
     // 0 when arg is < 0 </returns>
     template <typename T>

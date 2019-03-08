@@ -5,6 +5,7 @@
 #include <iterator>
 #include <sstream>
 #include <algorithm>
+#include <functional>
 
 #include "utility.hh"
 
