@@ -43,7 +43,7 @@ std::vector<std::vector<numeric_t> > utility::createTimes(const std::vector<nume
 std::vector<std::vector<numeric_t> > utility::generateRandomTimes(unsigned int nMachines, unsigned int nProcesses, int minValue, int maxValue)
 {
     // times can't be negative 
-    if(minValue || maxValue < 0)
+    if(minValue < 0 || maxValue < 0)
         { throw std::invalid_argument("Invalid arguments"); }
 
     // returned vector
@@ -90,3 +90,24 @@ std::vector<std::vector<int> > utility::getTimespan(std::vector<process> process
 
     return timespan;
 }
+
+std::tuple<process,int> getProcessWithSmallestTime(std::vector<process> & processes)
+{
+    std::vector<int>::iterator min_time;
+    process returned_process;
+
+    for(auto process : processes)
+    {
+        auto current_times = process.get_time();
+        auto current_time = std::min_element(current_times.begin(),current_times.end());
+        if(*current_time > *min_time)
+        {
+            min_time = current_time;
+            returned_process = process;
+        }
+    }
+
+    auto returned_time = returned_process.get_time();
+    return std::make_tuple(returned_process,std::distance(returned_time.begin(),min_time));
+}
+    

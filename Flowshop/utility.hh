@@ -14,6 +14,7 @@
 #include <random>
 #include <functional>
 #include <random>
+#include <tuple>
 
 #include "process.hh"
 
@@ -36,6 +37,8 @@ namespace utility
     // default arguments with max and min distribution values 
     std::vector<std::vector<numeric_t> > generateRandomTimes(unsigned int nMachines, unsigned int nProcesses, int minValue, int maxValue);
     std::vector<std::vector<numeric_t> > generateRandomTimes(unsigned int nMachines, unsigned int nProcesses, int minValue=1, int maxValue=10);
+    // <returns> process with smallest time on one of its machines
+    std::tuple<process,int> getProcessWithSmallestTime(std::vector<process> processes);
     // <returns> arg when arg is > 0
     // 0 when arg is < 0 </returns>
     template <typename T>

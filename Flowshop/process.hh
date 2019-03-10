@@ -16,6 +16,7 @@ class process
     std::vector<int> _times; //times on every machine
 
     public:
+    process() = default;
     process(unsigned int id, std::initializer_list<int> init) : _id(id), _times(init) {}
     process(unsigned int id, std::vector<int> init) : _id(id), _times(init) {}
     ~process(void) {};

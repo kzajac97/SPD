@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <typeinfo>
+#include <iterator>
+#include <exception>
 
 #include "process.hh"
 #include "utility.hh"
@@ -11,7 +13,7 @@
 // <input> process vector 
 // <returns> 2D vector containing process objects
 // in every possible order (permutations)
-std::vector<std::vector<process> > permutate(std::vector<process> processes)
+std::vector<std::vector<process> > getPermutations(std::vector<process> processes)
 {
     std::vector<std::vector<process> > result;
 
@@ -21,7 +23,8 @@ std::vector<std::vector<process> > permutate(std::vector<process> processes)
     return result;
 }
 
-std::vector<process> johnson(std::vector<process> & processes)
+
+std::vector<process> shortestTaskFirst(std::vector<process> & processes)
 {
     // sort processes vector with lamdba comparator
     std::sort(processes.begin(),processes.end(),[](auto & lhs, auto & rhs)
@@ -33,6 +36,58 @@ std::vector<process> johnson(std::vector<process> & processes)
     });
 
     return processes;
+}
+
+
+std::vector<process> johnson2machine(std::vector<process> processes)
+{
+    // check condition for 2 machine problem
+    for(auto process : processes)
+    { 
+        if(process.get_time().size() != 2)
+            { throw std::invalid_argument("Invalid argument"); }
+    }
+
+    std::vector<process> result;
+    std::vector<process> result_back;
+    auto sorted_processes = shortestTaskFirst(processes); // get processes on sorted vector
+    
+    for(auto process : sorted_processes)
+    {
+        if(process.get_time().front() < process.get_time().back())
+            { result.push_back(process); }
+        else
+            { result_back.push_back(process); }
+    }
+
+    // insert processes inserted on the back with reverse iterator
+    for(auto iter = result_back.rbegin(); iter != result_back.rend(); ++iter)
+        { result.push_back(*iter); }
+
+    return result;
+}
+
+std::vector<process> johnson3machine(std::vector<process> processes)
+{
+    // check condition for 3 machine problem
+    for(auto process : processes)
+    { 
+        if(process.get_time().size() != 3)
+            { throw std::invalid_argument("Invaild argument"); }
+    }
+
+    // virtual times 2D vector
+    std::vector<std::vector<int> > virtual_times(processes.size(),std::vector<int>(2));
+    // create 2 virtual machines in which times in virtual machine 1 are summed times
+    // from machine 1 and 2 and in virtual machine 2 times from machine 2 and 3
+    for(unsigned int i=0; i < virtual_times.size(); ++i)
+    {
+        for(unsigned int j=0; j < virtual_times.size(); ++j)
+        { virtual_times[i][j] = processes[i].get_time()[j] + processes[i].get_time()[j+1]; }
+    }
+
+    auto virtual_processes = utility::createProcesses(virtual_times);
+    return johnson2machine(virtual_processes); // use johnson algorithm for 2 machine problem
 }
 
 // computes time of tasks execution for given process order
@@ -77,10 +132,37 @@ int main(void)
     auto input = utility::readFile("data.txt");
     auto times = utility::createTimes(input);
     auto processes = utility::createProcesses(times);
-    //auto permutations = permutate(processes);
-    //auto x = maxspan(processes);
-    //auto x = johnson(processes);
-    auto x = utility::generateRandomTimes(3,4);
-    utility::printVector2D(x);
-    //std::cout << "\n";
+    auto permutations = getPermutations(processes);
+
+    std::cout << "Spans for all permutations\n";
+    for(auto permutation : permutations)
+        { std::cout << maxspan(permutation) << " "; }
+    std::cout << "\n";
+
+    std::vector<std::vector<int> > machine2times = {{32,42},
+                                                    {47,15},
+                                                    {22,50},
+                                                    {58,40},
+                                                    {31,28}};
+
+    
+    std::vector<std::vector<int> > machine3times = {{32,42,10},
+                                                    {47,15,10},
+                                                    {22,50,15},
+                                                    {58,40,5},
+                                                    {31,28,20}};
+
+    auto processes2johnson = utility::createProcesses(machine2times);
+    auto johnson2 = johnson2machine(processes2johnson);
+    std::cout << "2 machine johnson solution\n";
+    for(auto proc2 : johnson2)
+        { std::cout << proc2.get_id() << " "; }
+    std::cout << maxspan(johnson2) << "\n";
+
+    auto processes3johnson = utility::createProcesses(machine3times);
+    auto johnson3 = johnson3machine(processes3johnson);
+    std::cout << "3 machine johnson solution\n";
+    for(auto proc3 : johnson3)
+        { std::cout << proc3.get_id() << " "; }
+    std::cout << maxspan(johnson3) << "\n";
 } 
