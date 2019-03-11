@@ -69,11 +69,13 @@ std::vector<process> johnson2machine(std::vector<process> processes)
 
 std::vector<process> johnson3machine(std::vector<process> processes)
 {
-    // check condition for 3 machine problem
+    std::vector<process> result;
+
+    //check condition for 3 machine problem
     for(auto process : processes)
     { 
-        if(process.get_time().size() != 3)
-            { throw std::invalid_argument("Invaild argument"); }
+       if(process.get_time().size() != 3)
+           { throw std::invalid_argument("Invaild argument"); }
     }
 
     // virtual times 2D vector
@@ -87,7 +89,19 @@ std::vector<process> johnson3machine(std::vector<process> processes)
     }
 
     auto virtual_processes = utility::createProcesses(virtual_times);
-    return johnson2machine(virtual_processes); // use johnson algorithm for 2 machine problem
+    // use johnson algorithm for 2 machine problem
+    auto virtual_order = johnson2machine(virtual_processes);
+    // sort original processes in returned order 
+    for(auto virtual_process : virtual_order)
+    {
+        for(auto process : processes)
+        {
+            if(process.get_id() == virtual_process.get_id())
+                { result.push_back(process); }
+        }
+    }
+
+    return result;
 }
 
 // computes time of tasks execution for given process order
