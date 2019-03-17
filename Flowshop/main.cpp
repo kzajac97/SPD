@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <iterator>
 #include <exception>
+#include <numeric>
 
 #include "process.hh"
 #include "utility.hh"
@@ -132,37 +133,41 @@ int main(void)
     auto input = utility::readFile("data.txt");
     auto times = utility::createTimes(input);
     auto processes = utility::createProcesses(times);
-    auto permutations = getPermutations(processes);
+    // auto permutations = getPermutations(processes);
 
-    std::cout << "Spans for all permutations\n";
-    for(auto permutation : permutations)
-        { std::cout << maxspan(permutation) << " "; }
-    std::cout << "\n";
+    // std::cout << "Spans for all permutations\n";
+    // for(auto permutation : permutations)
+    //     { std::cout << maxspan(permutation) << " "; }
+    // std::cout << "\n";
 
-    std::vector<std::vector<int> > machine2times = {{32,42},
-                                                    {47,15},
-                                                    {22,50},
-                                                    {58,40},
-                                                    {31,28}};
+    // std::vector<std::vector<int> > machine2times = {{32,42},
+    //                                                 {47,15},
+    //                                                 {22,50},
+    //                                                 {58,40},
+    //                                                 {31,28}};
 
     
-    std::vector<std::vector<int> > machine3times = {{32,42,10},
-                                                    {47,15,10},
-                                                    {22,50,15},
-                                                    {58,40,5},
-                                                    {31,28,20}};
+    // std::vector<std::vector<int> > machine3times = {{32,42,10},
+    //                                                 {47,15,10},
+    //                                                 {22,50,15},
+    //                                                 {58,40,5},
+    //                                                 {31,28,20}};
 
-    auto processes2johnson = utility::createProcesses(machine2times);
-    auto johnson2 = johnson2machine(processes2johnson);
-    std::cout << "2 machine johnson solution\n";
-    for(auto proc2 : johnson2)
-        { std::cout << proc2.get_id() << " "; }
-    std::cout << maxspan(johnson2) << "\n";
+    // auto processes2johnson = utility::createProcesses(machine2times);
+    // auto johnson2 = johnson2machine(processes2johnson);
+    // std::cout << "2 machine johnson solution\n";
+    // for(auto proc2 : johnson2)
+    //     { std::cout << proc2.get_id() << " "; }
+    // std::cout << maxspan(johnson2) << "\n";
 
-    auto processes3johnson = utility::createProcesses(machine3times);
-    auto johnson3 = johnson3machine(processes3johnson);
-    std::cout << "3 machine johnson solution\n";
-    for(auto proc3 : johnson3)
-        { std::cout << proc3.get_id() << " "; }
-    std::cout << maxspan(johnson3) << "\n";
+    // auto processes3johnson = utility::createProcesses(machine3times);
+    // auto johnson3 = johnson3machine(processes3johnson);
+    // std::cout << "3 machine johnson solution\n";
+    // for(auto proc3 : johnson3)
+    //     { std::cout << proc3.get_id() << " "; }
+    // std::cout << maxspan(johnson3) << "\n";
+
+    auto x = shortestTaskFirst2(processes);
+    for(auto it : x) { std::cout << it.get_id() << " "; }
+    std::cout << "\n";
 } 
