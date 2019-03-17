@@ -6,6 +6,10 @@
 #include <iterator>
 #include <exception>
 #include <numeric>
+#include <thread>
+#include <future>
+#include <functional>
+#include <utility>
 
 #include "process.hh"
 #include "utility.hh"
@@ -96,6 +100,34 @@ auto getShortestTaskTime(std::vector<process> & processes, process task)
     }
 
     return index;
+}
+
+auto getTime(std::vector<process> processes, process task,unsigned int iter)
+{
+    processes.insert(processes.begin()+iter,task);
+    return std::make_pair(maxspan(processes),iter);
+}
+
+auto getShortestTaskTimeAsync(std::vector<process> & processes, process task)
+{
+    std::vector<std::pair<int,unsigned int> > spans;
+    std::vector<std::future<std::pair<int, unsigned int> > > results;
+    
+    for(unsigned int i=0; i < processes.size() + i; ++i)
+    {
+        auto future = std::async(getTime,processes,task,i);
+        results.push_back(std::move(future));
+    }
+
+    for(unsigned int i=0; i < results.size(); ++i)
+        { results[i].wait(); }
+
+
+    auto min_pair = std::min_element(results.begin(),results.end(),[](auto & lhs, auto & rhs){
+        return lhs.get().first < rhs.get().first;
+    });
+
+    return min_pair->get().second;
 }
 
 std::vector<process> neh(std::vector<process> & processes)
