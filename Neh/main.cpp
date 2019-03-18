@@ -10,6 +10,7 @@
 #include <future>
 #include <functional>
 #include <utility>
+#include <limits>
 
 #include "process.hh"
 #include "utility.hh"
@@ -79,24 +80,40 @@ std::vector<process> longestTotalTimeFirst(std::vector<process> & processes)
     return processes;
 }
 
+std::vector<process> longestTotalTimeFirstStable(std::vector<process> & processes)
+{
+    std::stable_sort(processes.begin(),processes.end(),[](auto lhs, auto rhs)
+    {
+        auto left_times = lhs.get_time(); // get vectors of times of current processes
+        auto right_times = rhs.get_time();
+        // compare total time of process
+        return std::accumulate(left_times.begin(),left_times.end(),0) > std::accumulate(right_times.begin(),right_times.end(),0);
+    });
+
+    return processes;
+}
+
 auto getShortestTaskTime(std::vector<process> & processes, process task)
 {
-    int best_span = 1000000;
-    unsigned int index;
+    int best_span = std::numeric_limits<int>::max();
+    unsigned int index; // index of current task best placment
 
-    for(unsigned int i=0; i < processes.size() + 1; ++i)
+    // insert element on each position in loop
+    // and save index giving smallest total time
+    for(unsigned int i=0; i <= processes.size(); ++i) // loop one element further than processes size
     {
         auto current_processes = processes;
-        current_processes.insert(current_processes.begin()+i,task);
+        current_processes.insert(current_processes.begin()+i,task); 
         auto span = maxspan(current_processes);
+        // save best span and it's index
         if(span < best_span)
         {
             best_span = span;
             index = i;
         }
 
-        current_processes.clear();
-        current_processes.shrink_to_fit();
+        current_processes.clear(); // clea values
+        current_processes.shrink_to_fit(); // deallocate memory
     }
 
     return index;
@@ -113,7 +130,7 @@ auto getShortestTaskTimeAsync(std::vector<process> & processes, process task)
     std::vector<std::pair<int,unsigned int> > spans;
     std::vector<std::future<std::pair<int, unsigned int> > > results;
     
-    for(unsigned int i=0; i < processes.size() + i; ++i)
+    for(unsigned int i=0; i <= processes.size(); ++i)
     {
         auto future = std::async(getTime,processes,task,i);
         results.push_back(std::move(future));
@@ -133,7 +150,7 @@ auto getShortestTaskTimeAsync(std::vector<process> & processes, process task)
 std::vector<process> neh(std::vector<process> & processes)
 {
     std::vector<process> result;
-    auto ordered_processes = longestTotalTimeFirst(processes);
+    auto ordered_processes = longestTotalTimeFirstStable(processes);
     result.push_back(ordered_processes[0]);
 
     for(unsigned int i=1; i < ordered_processes.size(); ++i)
