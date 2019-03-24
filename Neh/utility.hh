@@ -16,11 +16,26 @@
 #include <random>
 #include <tuple>
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/topological_sort.hpp>
+#include <boost/graph/adjacency_iterator.hpp>
+#include <boost/graph/graphviz.hpp>
+#include <boost/range/iterator_range.hpp>
+
 #include "process.hh"
 
 namespace utility
 {
+
+    struct vertex_properties_t { };
+    struct edge_properties_t { int weight; };
+
     using numeric_t = int; //alias
+    using edge_t = boost::property<boost::edge_weight_t, int>;
+    using graph_t = boost::adjacency_list<boost::listS,boost::vecS,boost::directedS,vertex_properties_t,edge_properties_t>;
+    using std::chrono::high_resolution_clock;
+    using std::chrono::duration;
 
     // reads file with given name
     // returns vector of numeric(int) type
@@ -39,6 +54,24 @@ namespace utility
     std::vector<std::vector<numeric_t> > generateRandomTimes(unsigned int nMachines, unsigned int nProcesses, int minValue=1, int maxValue=10);
     // <returns> process with smallest time on one of its machines
     std::tuple<process,int> getProcessWithSmallestTime(std::vector<process> processes);
+    // create flowshop model as a directed weighted graph
+    graph_t getGraphTimespan(std::vector<std::vector<int> > timespan);
+    // measures execution time of any schelduing algorithm
+    // <params> algorithm is function taking a vector of process objects as arguments
+    // <returns> chrono duration time in nanoseconds 
+    // To print result -> getExecutionTime(functiom,processes).count()
+    template <typename function_t>
+    auto getExecutionTime(function_t algorithm,std::vector<process> processes)
+    {
+        high_resolution_clock::time_point start = high_resolution_clock::now();       
+        algorithm(processes);
+        high_resolution_clock::time_point end = high_resolution_clock::now();
+        //casting chrono time point type to double and computing time function took to sort an array
+        duration<double,std::nano> diff = std::chrono::duration_cast<duration<double,std::nano>> (end-start);
+
+        return diff;
+    }
+
     // <returns> arg when arg is > 0
     // 0 when arg is < 0 </returns>
     template <typename T>

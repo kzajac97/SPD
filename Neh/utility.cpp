@@ -91,23 +91,32 @@ std::vector<std::vector<int> > utility::getTimespan(std::vector<process> process
     return timespan;
 }
 
-std::tuple<process,int> getProcessWithSmallestTime(std::vector<process> & processes)
+graph_t utility::getGraphTimespan(std::vector<std::vector<int> > timespan)
 {
-    std::vector<int>::iterator min_time;
-    process returned_process;
+    graph_t graph_span(timespan.size()*timespan[0].size()); // create empty graph
+    auto shift = timespan[0].size();
 
-    for(auto process : processes)
+    for(unsigned int i=0; i < timespan.size(); ++i)
     {
-        auto current_times = process.get_time();
-        auto current_time = std::min_element(current_times.begin(),current_times.end());
-        if(*current_time > *min_time)
+        for(unsigned int j=0; j < timespan[0].size(); ++j)
         {
-            min_time = current_time;
-            returned_process = process;
+            // add edge from process to next process on every machine
+            // don't add if it's last process for current machine
+            if(j+1 < timespan[0].size())
+                { boost::add_edge((i*shift) + j, 
+                                  (i*shift) + j + 1,                                                                          
+                                    graph_span); }
+            // add edge between process and the same process on next machine
+            // don't add for last machine
+            if(i+1 < timespan.size())
+                { boost::add_edge((i*shift) + j, 
+                                  (i*shift) + j + shift,
+                                    graph_span); }
         }
     }
 
-    auto returned_time = returned_process.get_time();
-    return std::make_tuple(returned_process,std::distance(returned_time.begin(),min_time));
+    for (auto edge_iterator : boost::make_iterator_range(edges(graph_span)))
+        std:: cout << graph_span[edge_iterator].weight << "\n";
+
+    return graph_span;
 }
-    
