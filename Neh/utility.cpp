@@ -94,17 +94,20 @@ std::vector<std::vector<int> > utility::getTimespan(std::vector<process> process
 graph_t utility::getGraphTimespan(std::vector<std::vector<int> > timespan)
 {
     graph_t graph_span(timespan.size()*timespan[0].size()); // create empty graph
+    std::vector<int> times;
     auto shift = timespan[0].size();
+    unsigned int time_iter = 0;
 
     for(unsigned int i=0; i < timespan.size(); ++i)
     {
         for(unsigned int j=0; j < timespan[0].size(); ++j)
         {
+            times.push_back(timespan[i][j]);
             // add edge from process to next process on every machine
             // don't add if it's last process for current machine
             if(j+1 < timespan[0].size())
                 { boost::add_edge((i*shift) + j, 
-                                  (i*shift) + j + 1,                                                                          
+                                  (i*shift) + j + 1,                                                                                                             
                                     graph_span); }
             // add edge between process and the same process on next machine
             // don't add for last machine
@@ -115,8 +118,16 @@ graph_t utility::getGraphTimespan(std::vector<std::vector<int> > timespan)
         }
     }
 
-    for (auto edge_iterator : boost::make_iterator_range(edges(graph_span)))
-        std:: cout << graph_span[edge_iterator].weight << "\n";
+    for (auto vertex_iterator : boost::make_iterator_range(vertices(graph_span)))
+    {
+        graph_span[vertex_iterator].task_time = times[time_iter];
+        time_iter++;
+    }
+
+    for (auto vertex_iterator : boost::make_iterator_range(vertices(graph_span)))
+    {
+        std::cout << graph_span[vertex_iterator].task_time << "\n";
+    }
 
     return graph_span;
 }

@@ -28,8 +28,8 @@
 namespace utility
 {
 
-    struct vertex_properties_t { };
-    struct edge_properties_t { int weight; };
+    struct vertex_properties_t { int task_time; };
+    struct edge_properties_t { };
 
     using numeric_t = int; //alias
     using edge_t = boost::property<boost::edge_weight_t, int>;
