@@ -16,24 +16,11 @@
 #include <random>
 #include <tuple>
 
-// #include <boost/graph/adjacency_list.hpp>
-// #include <boost/graph/graph_traits.hpp>
-// #include <boost/graph/topological_sort.hpp>
-// #include <boost/graph/adjacency_iterator.hpp>
-// #include <boost/graph/graphviz.hpp>
-// #include <boost/range/iterator_range.hpp>
-
 #include "process.hh"
 
 namespace utility
 {
-
-    //struct vertex_properties_t { int task_time; };
-    //struct edge_properties_t { };
-
     using numeric_t = int; //alias
-    //using edge_t = boost::property<boost::edge_weight_t, int>;
-    //using graph_t = boost::adjacency_list<boost::listS,boost::vecS,boost::directedS,vertex_properties_t,edge_properties_t>;
     using std::chrono::high_resolution_clock;
     using std::chrono::duration;
 
@@ -76,6 +63,7 @@ namespace utility
     // 0 when arg is < 0 </returns>
     template <typename T>
     T relu(T arg) { return (arg > 0) ? arg : 0; }
+    // get row sum of 2D vector 
     template <typename T>
     T getRowSum(std::vector<std::vector<T> > vector,unsigned int beginning, unsigned int end,unsigned int row)
     {
@@ -89,7 +77,7 @@ namespace utility
 
         return result;
     }
-
+    // get column sum for 2D vector
     template <typename T>
     T getColSum(std::vector<std::vector<T> > vector,unsigned int beginning, unsigned int end,unsigned int col)
     {

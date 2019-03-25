@@ -13,19 +13,12 @@
 #include <limits>
 #include <chrono>
 
-// #include <boost/graph/dijkstra_shortest_paths.hpp>
-// #include <boost/graph/adjacency_list.hpp>
-// #include <boost/graph/graph_traits.hpp>
-// #include <boost/graph/topological_sort.hpp>
-// #include <boost/graph/adjacency_iterator.hpp>
-// #include <boost/graph/graphviz.hpp>
-// #include <boost/range/iterator_range.hpp>
-
 #include "process.hh"
 #include "utility.hh"
 
 // computes time of tasks execution for given process order
 // computes finish time of every task on every machine
+// <returns> a vector of vectors holding every task finish time
 auto maxspan_vector(std::vector<process> processes)
 {
     auto timespan = utility::getTimespan(processes);
@@ -53,8 +46,7 @@ auto maxspan_vector(std::vector<process> processes)
                 tasks[i][j] = (tasks[i-1][j] > tasks[i][j-1]) ?  
                     timespan[i][j] + tasks[i-1][j] : 
                     tasks[i][j] = timespan[i][j] + tasks[i][j-1]; // long ternary operator
-            }
-            
+            }          
         }
     }
     // return finish time of last task on last machine
@@ -64,16 +56,18 @@ auto maxspan_vector(std::vector<process> processes)
 // returns value of maxspan
 int maxspan(std::vector<process> processes)
 {
-    return maxspan_vector(processes).back().back();
+    return maxspan_vector(processes).back().back(); 
 }
 
+// accelerated vesrion of maxspan using times from previoulsy comupted task times
 int maxspan_accelerated(std::vector<process> processes, unsigned int start_index, std::vector<std::vector<int> > current_tasks)
 {
     auto timespan = utility::getTimespan(processes);
-    auto tasks = current_tasks;
+    auto tasks = current_tasks; // get task times from previous iterations
     
     for(unsigned int i=0; i < timespan.size(); ++i)
     {
+        // start loop in place where new task was inserted
         for(unsigned int j=start_index; j < timespan[i].size(); ++j)
         {
             if(i == 0 && j == 0) // first machine first process
@@ -97,6 +91,7 @@ int maxspan_accelerated(std::vector<process> processes, unsigned int start_index
     return tasks.back().back(); 
 }
 
+// returns permutation with shortest task at the beginning
 std::vector<process> shortestTaskFirst(std::vector<process> & processes)
 {
     // sort processes vector with lamdba comparator
@@ -111,6 +106,7 @@ std::vector<process> shortestTaskFirst(std::vector<process> & processes)
     return processes;
 }
 
+// returns permutation with longest total time of task on every machine
 std::vector<process> longestTotalTimeFirst(std::vector<process> & processes)
 {
     // sort processes vector with lamdba comparator
@@ -125,6 +121,7 @@ std::vector<process> longestTotalTimeFirst(std::vector<process> & processes)
     return processes;
 }
 
+// uses stable_sort (merge) instead of quick sort
 std::vector<process> longestTotalTimeFirstStable(std::vector<process> & processes)
 {
     std::stable_sort(processes.begin(),processes.end(),[](auto lhs, auto rhs)
@@ -138,6 +135,7 @@ std::vector<process> longestTotalTimeFirstStable(std::vector<process> & processe
     return processes;
 }
 
+// finds index which gives smallest maxspan for current task insertion
 auto getShortestTaskTime(std::vector<process> & processes, process task)
 {
     int best_span = std::numeric_limits<int>::max();
@@ -154,31 +152,35 @@ auto getShortestTaskTime(std::vector<process> & processes, process task)
         if(span < best_span)
             { best_span = span; index = i; }
 
-        current_processes.clear(); // clea values
+        current_processes.clear(); // clear values
         current_processes.shrink_to_fit(); // deallocate memory
     }
 
     return index;
 }
 
+// finds index which gives smallest maxspan for current task insertion
+// reuses computation if there is a lot of processes
 auto getShortestTaskTimeAccelerated(std::vector<process> & processes, process task)
 {
     int best_span = std::numeric_limits<int>::max();
     unsigned int index;
 
-    if(processes.size() < 4)
+    if(processes.size() < 4) // for small number of processes acceleration is not necessery
         return getShortestTaskTime(processes, task);
     
     else
     {
-        auto task_processes = processes;
-        task_processes.push_back(task);
-        auto current_tasks = maxspan_vector(task_processes);
+        // get max span with current task at the back
+        auto task_order = processes; 
+        task_order.push_back(task);
+        auto current_tasks = maxspan_vector(task_order);
         
         for(unsigned int i=0; i <= processes.size(); ++i)
         {
             auto current_processes = processes;
             current_processes.insert(current_processes.begin()+i,task); 
+            // reuse timespan vector
             auto span = maxspan_accelerated(current_processes,i,current_tasks);
             // save best span and it's index
             if(span < best_span)
@@ -192,7 +194,7 @@ auto getShortestTaskTimeAccelerated(std::vector<process> & processes, process ta
     return index;
 }
 
-
+// implementation of neh schelduing algorithm
 std::vector<process> neh(std::vector<process> & processes)
 {
     std::vector<process> result;
@@ -208,6 +210,8 @@ std::vector<process> neh(std::vector<process> & processes)
     return result;
 }
 
+// neh with reused computations 
+// Acceleration is about 20% faster than normal neh
 std::vector<process> neh_accelerated(std::vector<process> & processes)
 {
     std::vector<process> result;
