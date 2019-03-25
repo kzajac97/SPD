@@ -8,10 +8,10 @@ neh.exe: main.o utility.o
 	g++ -o neh.exe utility.o main.o
 
 main.o: main.cpp 	
-	g++ -c ${CXXFLAGS} ${BOOSTFLAGS} main.cpp
+	g++ -c ${CXXFLAGS} main.cpp
 
 utility.o: utility.cpp 
-	g++ -c ${CXXFLAGS} ${BOOSTFLAGS} utility.cpp 
+	g++ -c ${CXXFLAGS} utility.cpp 
 
 clean:
 	rm -f *.o *.exe
