@@ -13,8 +13,8 @@
 #include <limits>
 #include <chrono>
 
-#include <process.hh>
-#include <utility.hh>
+#include <process.hpp>
+#include <utility.hpp>
 
 // computes time of tasks execution for given process order
 // computes finish time of every task on every machine
@@ -352,10 +352,7 @@ std::vector<process> neh_modified(std::vector<process> & processes)
 
 int main(void)
 {
-    auto input = utility::readFile("Data/ta000.txt");
-
-    for(auto x : input) { std::cout << x << "\n"; }
-
+    auto input = utility::readFile("Data/ta000.csv");
     auto times = utility::createTimes(input);
     auto processes = utility::createProcesses(times);
     

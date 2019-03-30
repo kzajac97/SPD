@@ -50,6 +50,19 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "atomic": "cpp",
+        "condition_variable": "cpp",
+        "ctime": "cpp",
+        "deque": "cpp",
+        "resumable": "cpp",
+        "future": "cpp",
+        "iomanip": "cpp",
+        "mutex": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "xthread": "cpp",
+        "xlocmon": "cpp",
+        "xloctime": "cpp"
     }
 }

@@ -1,4 +1,4 @@
-#include "utility.hh"
+#include "utility.hpp"
 
 using namespace utility;
 
