@@ -17,6 +17,8 @@ class process
 
     public:
     process() = default;
+    process(process && proc) = default;
+    process(const process & proc) = default;
     process(unsigned int id, std::initializer_list<int> init) : _id(id), _times(init) {}
     process(unsigned int id, std::vector<int> init) : _id(id), _times(init) {}
     ~process(void) {};
@@ -31,6 +33,8 @@ class process
 
     bool operator > (process proc) { return this->_id > proc.get_id() ? true : false; } 
     bool operator < (process proc) { return this->_id < proc.get_id() ? true : false; }
+    process & operator = (process && proc) = default;
+    process & operator = (const process & proc) = default;
 };
 
 #endif

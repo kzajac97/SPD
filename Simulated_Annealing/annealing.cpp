@@ -80,15 +80,14 @@ std::tuple<unsigned int,unsigned int> generateRandomIndices(unsigned int size)
 }
 
 float acceptanceProbabilty(int cmax, int cmax_prime, int temperature)
-{ 
-    //return cmax > cmax_prime ? 1 : std::exp( (cmax-cmax_prime)/temperature );
-    return cmax > cmax_prime ? 1 : 0;
+{  
+    return cmax > cmax_prime ? 1 : 0; 
 }
 
-int linear_cooling(int temperature)
+int linear_cooling(int start_temperature, int t)
 { 
-    const float cooling_coeff = 0.75;
-    return cooling_coeff * temperature;
+    const float cooling_coeff = 1;
+    return start_temperature - cooling_coeff * t;   
 }
 
 int exponential_cooling(int temperature)
@@ -180,7 +179,7 @@ std::vector<process> neh(std::vector<process> & processes)
 
 std::vector<process> simulate_annealing(std::vector<process> & processes, int start_temperature, int end_temperature, int iterations)
 {
-    int current_temperature = start_temperature;
+    int current_temperature = iterations;
     std::vector<process> current_processes;
     for(int i=0; i < iterations; ++i)
     {
@@ -189,16 +188,13 @@ std::vector<process> simulate_annealing(std::vector<process> & processes, int st
         current_processes = processes;
         std::swap(current_processes[std::get<0>(index)],current_processes[std::get<1>(index)]);
         
-        auto probability = acceptanceProbabilty(maxspan(processes),maxspan(current_processes),current_temperature);
-        
-        if(probability >= 1)
+        float probability = acceptanceProbabilty(maxspan(processes),maxspan(current_processes),current_temperature);
+        std::cout << "P(X) = " << probability << "\n";
+
+        if(probability >= 0.9)
             { std::swap(processes[std::get<0>(index)],processes[std::get<1>(index)]); }
 
-        current_temperature = linear_cooling(start_temperature);
-
-        //if(current_temperature < end_temperature)
-        //    { return current_processes; }
-
+        current_temperature = linear_cooling(start_temperature,i);
         current_processes.clear();
     }
 
@@ -213,6 +209,6 @@ int main(void)
     auto processes = utility::createProcesses(times);
     auto neh_time = neh(processes);
     std::cout << "Neh: " << maxspan(neh_time) << "\n"; 
-    auto result = simulate_annealing(neh_time,100,20,10000);
+    auto result = simulate_annealing(neh_time,10000,0,10);
     std::cout << "Annealing: " << maxspan(result) << "\n";
 }
