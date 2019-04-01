@@ -81,7 +81,7 @@ std::tuple<unsigned int,unsigned int> generateRandomIndices(unsigned int size)
 
 float acceptanceProbabilty(int cmax, int cmax_prime, int temperature)
 {  
-    return cmax > cmax_prime ? 1 : 0; 
+    return cmax > cmax_prime ? 1 : (float)2.0/( (float)1.0 + std::exp((-(float)cmax+(float)cmax_prime)/(float)temperature) ); 
 }
 
 int linear_cooling(int start_temperature, int t)
@@ -189,9 +189,8 @@ std::vector<process> simulate_annealing(std::vector<process> & processes, int st
         std::swap(current_processes[std::get<0>(index)],current_processes[std::get<1>(index)]);
         
         float probability = acceptanceProbabilty(maxspan(processes),maxspan(current_processes),current_temperature);
-        std::cout << "P(X) = " << probability << "\n";
-
-        if(probability >= 0.9)
+        
+        if(probability >= 0.98)
             { std::swap(processes[std::get<0>(index)],processes[std::get<1>(index)]); }
 
         current_temperature = linear_cooling(start_temperature,i);
@@ -209,6 +208,6 @@ int main(void)
     auto processes = utility::createProcesses(times);
     auto neh_time = neh(processes);
     std::cout << "Neh: " << maxspan(neh_time) << "\n"; 
-    auto result = simulate_annealing(neh_time,10000,0,10);
+    auto result = simulate_annealing(neh_time,10000,0,10000);
     std::cout << "Annealing: " << maxspan(result) << "\n";
 }
