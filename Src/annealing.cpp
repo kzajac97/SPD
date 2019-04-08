@@ -61,9 +61,14 @@ std::tuple<unsigned int,unsigned int> generateRandomIndices(unsigned int size)
     return std::make_tuple(distribution(generator),distribution(generator));
 }
 
-double acceptanceProbabilty(int cmax, int cmax_prime, double temperature)
+double acceptanceProbabiltySigmoid(int cmax, int cmax_prime, double temperature)
 {  
     return cmax > cmax_prime ? 1.0 : 1.0 - 2.0/(1.0 + std::exp(temperature/ ( 0.04 * (-(double)cmax+(double)cmax_prime) ) ));
+}
+
+double acceptanceProbabilty(int cmax, int cmax_prime, double temperature)
+{  
+    return cmax > cmax_prime ? 1.0 : std::exp( ((double)cmax - (double)cmax_prime)/temperature );
 }
 
 std::vector<process> simulate_annealing(std::vector<process> & processes, double start_temperature, double end_temperature, 
@@ -94,7 +99,7 @@ std::vector<process> simulate_annealing(std::vector<process> & processes, double
             default: throw std::invalid_argument("Unrecognized option"); break;
         }
 
-        double probability = acceptanceProbabilty(maxspan(processes),maxspan(current_processes),current_temperature);
+        double probability = acceptanceProbabiltySigmoid(maxspan(processes),maxspan(current_processes),current_temperature);
         
         if(probability >= acceptance_probabilty)
             { std::swap(processes[std::get<0>(index)],processes[std::get<1>(index)]); }
@@ -111,8 +116,8 @@ std::vector<process> simulate_annealing(std::vector<process> & processes, double
         if(current_temperature < end_temperature)
             { return processes; }
 
-        if(i % 1000 == 0)
-            { std::cout << i/1000 << " " << maxspan(processes) << "\n"; }
+        //if(i % 1000 == 0)
+        //    { std::cout << maxspan(processes) << ", "; }
 
         current_processes.clear();
     }

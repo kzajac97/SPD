@@ -27,6 +27,8 @@ std::tuple<unsigned int,unsigned int> generateRandomIndices(unsigned int size);
 // cmax_prime - maxspan after change
 // temperature - current temperature
 // <returns> probability of acceptance of current move
+double acceptanceProbabiltySigmoid(int cmax, int cmax_prime, double temperature);
+//
 double acceptanceProbabilty(int cmax, int cmax_prime, double temperature);
 // runs simulated annealing algorithm
 // <params>
