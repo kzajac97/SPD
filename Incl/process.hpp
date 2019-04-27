@@ -27,6 +27,8 @@ class process
     const unsigned int get_id(void) { return this->_id; }
 
     void set_time(int time,unsigned int index) { this->_times[index] = time; }
+    void push_times(int value) { this->_times.push_back(value); } 
+    void pop_times(void) { this->_times.pop_back(); }
     void set_id(int id) { this->_id = id; }
 
     int getExecutionTime(void) { return std::accumulate(this->_times.begin(),this->_times.end(),0); }
