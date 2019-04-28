@@ -30,6 +30,7 @@ class process
     void push_times(int value) { this->_times.push_back(value); } 
     void pop_times(void) { this->_times.pop_back(); }
     void set_id(int id) { this->_id = id; }
+    void print_times(void) { for(const auto x : this->_times) { std::cout << x << " "; } std::cout << "\n"; }
 
     int getExecutionTime(void) { return std::accumulate(this->_times.begin(),this->_times.end(),0); }
 
