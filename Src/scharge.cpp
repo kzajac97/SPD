@@ -32,9 +32,9 @@ std::vector<process> scharge(std::vector<process> & processes)
         updated = false;
         for(unsigned int i=0; i < rtimes.size(); i++)
         {
-            std::cout << "P ID " << processes[i].get_id() << "\n";
-            std::cout << "R: " << rtimes[i] << "\n";
-            std::cout << "T: " <<t << "\n";
+            //std::cout << "P ID " << processes[i].get_id() << "\n";
+            //std::cout << "R: " << rtimes[i] << "\n";
+            //std::cout << "T: " <<t << "\n";
             if(rtimes[i] <= t)
             {
                 updated = true;           
@@ -60,8 +60,8 @@ std::vector<process> scharge(std::vector<process> & processes)
             rtimes.shrink_to_fit();
         }
 
-        std::cout << "SJ:\n";
-        for(auto x : schelduable_jobs) { std::cout << x.get_id() << " "; } std::cout << "\n"; 
+        //std::cout << "SJ:\n";
+        //for(auto x : schelduable_jobs) { std::cout << x.get_id() << " "; } std::cout << "\n"; 
         for(unsigned int j=0; j < schelduable_jobs.size(); ++j)
         {
             unsigned int index = getMaxIndex(schelduable_jobs);
@@ -75,13 +75,13 @@ std::vector<process> scharge(std::vector<process> & processes)
         indexes.clear();
         indexes.shrink_to_fit();
 
-        if(!updated) { t++; std::cout << "Updating t\n"; }
+        if(!updated) { t++; }
 
-        std::cout << "Result: \n";
-        for(auto x : result) { std::cout << x.get_id() << " "; } std::cout << "\n";
-        std::cout << "T: " << t << "\n";
+        //std::cout << "Result: \n";
+        //for(auto x : result) { std::cout << x.get_id() << " "; } std::cout << "\n";
+        //std::cout << "T: " << t << "\n";
 
-        std::cout << "END LOOP\n";
+        //std::cout << "END LOOP\n";
     }
 
     return result;
@@ -94,7 +94,7 @@ unsigned int getMaxIndex(std::vector<process> & processes)
     unsigned int index;
     for(unsigned int i=0; i < processes.size(); ++i)
     {
-        if(processes[i].get_time().back() > max)
+        if(processes[i].get_time().back() >= max)
         {
             max = processes[i].get_time().back();
             index = i;
@@ -112,20 +112,18 @@ int rpq_maxspan(std::vector<process> processes)
     std::vector<int> qtimes = std::get<2>(rpq_times);
     std::vector<int> maxspan;
     maxspan.resize(rtimes.size());
-
-    maxspan[0] = ptimes[0];
-
-    for(unsigned int i=1; i < ptimes.size(); ++i)
-        { maxspan[i] = ptimes[i] + maxspan[i-1]; }
-
-    for(unsigned int j=0; j < rtimes.size(); ++j)
+    
+    maxspan[0] = rtimes[0] + ptimes[0];
+    for(unsigned int i=1; i < maxspan.size(); ++i)
     {
-        if(maxspan[j] < rtimes[j]) 
-            { maxspan[j] = rtimes[j]; } 
+        if(rtimes[i] > maxspan[i-1])
+            { maxspan[i] = rtimes[i] + ptimes[i]; }
+        else
+            { maxspan[i] = ptimes[i] + maxspan[i-1]; }
     }
-
-    for(unsigned int k=0; k < qtimes.size(); ++k)
-        { maxspan[k] += qtimes[k]; }
-
+    
+    for(unsigned int j=0; j < qtimes.size(); ++j)
+        { maxspan[j] += qtimes[j]; }
+    
     return *std::max_element(maxspan.begin(), maxspan.end());
 }

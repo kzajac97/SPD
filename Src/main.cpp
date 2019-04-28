@@ -27,7 +27,8 @@ int main(void)
     // }
     
     // for(auto x : results)
-    //     { std::cout << rpq_maxspan(x) << "\n"; }
+    //     { std::cout << rpq_maxspan(x) << "\n"; }    
+    
     auto data = utility::readFile("Data/in00.txt");
     auto times = utility::createTimes(data);
     auto processes = utility::createProcesses(times);
