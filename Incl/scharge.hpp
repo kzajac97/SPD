@@ -11,9 +11,9 @@
 #include "flowshop.hpp"
 #include "utility.hpp"
 
-std::vector<process> scharge(std::vector<process> & processes);
-auto get_rpq_times(std::vector<process> & processes);
-unsigned int getMaxIndex(std::vector<process> & processes);
+std::vector<process> scharge(std::vector<process> processes);
+auto get_rpq_times(std::vector<process> processes);
+unsigned int getMaxIndex(std::vector<process> processes);
 int rpq_maxspan(std::vector<process> processes);
 
 #endif
