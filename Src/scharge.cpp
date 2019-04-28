@@ -77,6 +77,8 @@ std::vector<process> scharge(std::vector<process> processes)
         if(!updated) { t++; } // if no process was updated increment t to find scheludable processes
     }
 
+    for(auto x : result)
+    { std::cout << x.get_id() -1 << " "; }
     return result;
 }
 
