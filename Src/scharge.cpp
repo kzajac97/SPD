@@ -32,9 +32,9 @@ std::vector<process> scharge(std::vector<process> & processes)
         updated = false;
         for(unsigned int i=0; i < rtimes.size(); i++)
         {
-            //std::cout << "P ID " << processes[i].get_id() << "\n";
-            //std::cout << "R: " << rtimes[i] << "\n";
-            //std::cout << "T: " <<t << "\n";
+            std::cout << "P ID " << processes[i].get_id() << "\n";
+            std::cout << "R: " << rtimes[i] << "\n";
+            std::cout << "T: " <<t << "\n";
             if(rtimes[i] <= t)
             {
                 updated = true;           
@@ -49,18 +49,7 @@ std::vector<process> scharge(std::vector<process> & processes)
                 //ptimes.erase(ptimes.begin() + i);
             }      
         }
-
-        //std::cout << "SJ\n";
-        //for(auto x : schelduable_jobs) { std::cout << x.get_id() << " "; } std::cout << "\n"; 
-        for(unsigned int j=0; j < schelduable_jobs.size(); ++j)
-        {
-            unsigned int index = getMaxIndex(schelduable_jobs);
-            result.push_back(schelduable_jobs[index]);
-            t += schelduable_jobs[index].get_time()[1];
-            schelduable_jobs.erase(schelduable_jobs.begin() + index);           
-            schelduable_jobs.shrink_to_fit();
-        }
-
+        
         for(unsigned int i=0; i < indexes.size(); ++i)
         {
             schelduable_jobs.push_back(processes[indexes[i]]);
@@ -71,13 +60,28 @@ std::vector<process> scharge(std::vector<process> & processes)
             rtimes.shrink_to_fit();
         }
 
+        std::cout << "SJ:\n";
+        for(auto x : schelduable_jobs) { std::cout << x.get_id() << " "; } std::cout << "\n"; 
+        for(unsigned int j=0; j < schelduable_jobs.size(); ++j)
+        {
+            unsigned int index = getMaxIndex(schelduable_jobs);
+            result.push_back(schelduable_jobs[index]);
+            t += schelduable_jobs[index].get_time()[1];
+            updated = true;
+            schelduable_jobs.erase(schelduable_jobs.begin() + index);           
+            schelduable_jobs.shrink_to_fit();
+        }
+
         indexes.clear();
         indexes.shrink_to_fit();
 
-        if(updated) { t++; }
+        if(!updated) { t++; std::cout << "Updating t\n"; }
 
         std::cout << "Result: \n";
         for(auto x : result) { std::cout << x.get_id() << " "; } std::cout << "\n";
+        std::cout << "T: " << t << "\n";
+
+        std::cout << "END LOOP\n";
     }
 
     return result;
