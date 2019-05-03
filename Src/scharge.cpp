@@ -25,60 +25,37 @@ std::vector<process> scharge(std::vector<process> processes)
     std::vector<int> rtimes = std::get<0>(rpq_times);
     std::vector<int> ptimes = std::get<1>(rpq_times);
     std::vector<int> qtimes = std::get<2>(rpq_times);
-    // helper vector holding indexes in array
-    std::vector<unsigned int> indexes;
-    int t = 0; // time variable to find schelduable tasks
-    bool updated; // helper variable to update current time
 
-    // loop until all processes are move to result vector
+    int t = *std::min_element(rtimes.begin(),rtimes.end()); // time variable to find schelduable tasks
+    
     while(!processes.empty() || !schelduable_jobs.empty())
     {
-        updated = false;
-        for(unsigned int i=0; i < rtimes.size(); i++)
+        while(!processes.empty() && *std::min_element(rtimes.begin(),rtimes.end()) <= t)
         {
-            // if preparation time is smaller than current T
-            if(rtimes[i] <= t)
-            {
-                updated = true;           
-                indexes.push_back(i);
-            }      
-        }
-        
-        // remove all scheldued processes using saved indices
-        for(unsigned int i=0; i < indexes.size(); ++i)
-        {
-            schelduable_jobs.push_back(processes[indexes[i]]);
-            processes.erase(processes.begin() + indexes[i]);
-            rtimes.erase(rtimes.begin() + indexes[i]);
-            // decrement all indices
-            for(auto & index : indexes) 
-                { index--; }
-            // free memory
+            unsigned int j = getMinIndex(processes);
+            schelduable_jobs.push_back(processes[j]);
+            processes.erase(processes.begin() + j);
+            rtimes.erase(rtimes.begin() + j);
             processes.shrink_to_fit();
             rtimes.shrink_to_fit();
         }
 
-        indexes.clear();
-        indexes.shrink_to_fit();
+        if(schelduable_jobs.empty())
+            { t = *std::min_element(rtimes.begin(),rtimes.end()); }
 
-        for(unsigned int j=0; j < schelduable_jobs.size(); ++j)
+        else
         {
-            // get index of task with highet Q time
-            unsigned int index = getMaxIndex(schelduable_jobs);
-            result.push_back(schelduable_jobs[index]);
-            // update time 
-            t += schelduable_jobs[index].get_time()[1];
-            updated = true;
-            // remove from scheluded_jobs
-            schelduable_jobs.erase(schelduable_jobs.begin() + index);           
+            unsigned int j = getMaxIndex(schelduable_jobs);
+            result.push_back(schelduable_jobs[j]);
+            t += schelduable_jobs[j].get_time()[1];
+            schelduable_jobs.erase(schelduable_jobs.begin() + j);
             schelduable_jobs.shrink_to_fit();
         }
-
-        if(!updated) { t++; } // if no process was updated increment t to find scheludable processes
     }
 
-    for(auto x : result)
-    { std::cout << x.get_id() -1 << " "; }
+    // for(auto x : result)
+    // { std::cout << x.get_id() - 1 << " "; }
+    // std::cout << "\n";
     return result;
 }
 
@@ -92,6 +69,23 @@ unsigned int getMaxIndex(std::vector<process> processes)
         if(processes[i].get_time().back() > max)
         {
             max = processes[i].get_time().back();
+            index = i;
+        }
+    }
+
+    return index;
+}
+
+unsigned int getMinIndex(std::vector<process> processes)
+{
+    int min = std::numeric_limits<int>::max();
+    unsigned int index;
+    
+    for(unsigned int i=0; i < processes.size(); ++i)
+    {
+        if(processes[i].get_time()[0] < min)
+        {
+            min = processes[i].get_time()[0];
             index = i;
         }
     }
