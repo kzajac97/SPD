@@ -53,10 +53,60 @@ std::vector<process> scharge(std::vector<process> processes)
         }
     }
 
-    // for(auto x : result)
-    // { std::cout << x.get_id() - 1 << " "; }
-    // std::cout << "\n";
     return result;
+}
+
+int schrage_pmtn(std::vector<process> processes)
+{
+    int cmax = 0;
+    std::vector<process> result, schelduable_jobs;
+    int t = 0;
+    unsigned int j;
+    process jp;
+    process lp(0,{1000,1000,1000});
+
+    auto rpq_times = get_rpq_times(processes);
+    std::vector<int> rtimes = std::get<0>(rpq_times);
+    std::vector<int> ptimes = std::get<1>(rpq_times);
+    std::vector<int> qtimes = std::get<2>(rpq_times);
+
+    while(!processes.empty() || !schelduable_jobs.empty())
+    {
+        while(!processes.empty() && getMin(processes) <= t)
+        {
+            jp = getRmin(processes);
+            j = getMinIndex(processes);
+            schelduable_jobs.push_back(jp);
+            processes.erase(processes.begin() + j);
+            processes.shrink_to_fit();
+
+            if(jp.get_time()[0] > lp.get_time()[0])
+            {
+                lp.set_time(t - jp.get_time()[0], 1);
+                t = jp.get_time()[0];
+
+                if(lp.get_time()[1] > 0)
+                    { schelduable_jobs.push_back(lp); } 
+            }
+        }
+
+        if(schelduable_jobs.empty())
+            { t = getMin(processes); }
+        else
+        {
+            jp = getQmax(schelduable_jobs);
+            j = getMaxIndex(schelduable_jobs);
+            schelduable_jobs.erase(schelduable_jobs.begin() + j);
+            schelduable_jobs.shrink_to_fit();
+
+            lp = jp;
+            t += jp.get_time()[1];
+            if(cmax < t + jp.get_time().back())
+                { cmax = t + jp.get_time().back(); }
+        }
+    }
+    
+    return cmax;
 }
 
 unsigned int getMaxIndex(std::vector<process> processes)
@@ -91,6 +141,53 @@ unsigned int getMinIndex(std::vector<process> processes)
     }
 
     return index;
+}
+
+int getMin(std::vector<process> processes)
+{
+    int min = std::numeric_limits<int>::max();
+
+    for(unsigned int i=0; i < processes.size(); ++i)
+    {
+        if(processes[i].get_time()[0] < min)
+            { min = processes[i].get_time()[0]; }
+    }
+
+    return min;
+}
+
+process getRmin(std::vector<process> processes)
+{
+    int min = std::numeric_limits<int>::max();
+    process result;
+
+    for(auto process : processes)
+    {
+        if(process.get_time()[0] < min)
+        {
+            result = process;
+            min = process.get_time()[0];
+        }
+    }
+    
+    return result;
+}
+
+process getQmax(std::vector<process> processes)
+{
+    int max = 0;
+    process result;
+
+    for(auto process : processes)
+    {
+        if(process.get_time().back() > max)
+        {
+            result = process;
+            max = process.get_time().back();
+        }
+    }
+    
+    return result;
 }
 
 int rpq_maxspan(std::vector<process> processes)
