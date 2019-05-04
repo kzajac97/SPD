@@ -47,6 +47,8 @@ double acceptanceProbabilty(int cmax, int cmax_prime, double temperature);
 std::vector<process> simulate_annealing(std::vector<process> & processes, double start_temperature, double end_temperature, 
                                         double acceptance_probabilty, long int iterations, std::string cooling_type, std::string move_type);
 
+std::vector<process> simulate_rpq_annealing(std::vector<process> & processes, double start_temperature, double end_temperature, 
+                                        double acceptance_probabilty, long int iterations, std::string cooling_type, std::string move_type);
 // cooling functions
 
 // F(T) = T0 - kT

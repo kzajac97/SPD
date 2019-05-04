@@ -79,7 +79,7 @@ int main(void)
     // PMTN SCHRAGE TEST    
     std::array<int, 3> result;
 
-    std::cout << "Sharge pmtn\n";
+    std::cout << "SHARGE PMTN\n";
     for(unsigned int i=0; i < files.size(); ++i)
     {
         data[i] = utility::readFile(files[i]);
@@ -97,7 +97,7 @@ int main(void)
     for(auto t : timespan)
         { std::cout << t.count() << "\n"; }
 
-    std::cout << "Sharge pmtn heap\n";
+    std::cout << "SHARGE PMTN HEAP\n";
     for(unsigned int i=0; i < files.size(); ++i)
     {
         data[i] = utility::readFile(files[i]);
@@ -114,5 +114,19 @@ int main(void)
 
     for(auto t : timespan)
         { std::cout << t.count() << "\n"; }
+
+    // IMPOROVED RESULTS
+    std::cout << "SHRAGE + ANNEALING\n";
+    for(unsigned int i=0; i < files.size(); ++i)
+    {
+        data[i] = utility::readFile(files[i]);
+        times[i] = utility::createTimes(data[i]);
+        processes[i] = utility::createProcesses(times[i]);
+        results[i] = scharge_heap(processes[i]);
+        results[i] = simulate_rpq_annealing(results[i],1,0,0.9,40000,"Exponential","Swap");
+    }
+
+    for(auto x : results)
+        { std::cout << rpq_maxspan(x) << "\n"; }  
 
 }

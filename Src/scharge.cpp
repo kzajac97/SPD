@@ -1,21 +1,6 @@
 #include "scharge.hpp"
 #include "heap.hpp"
-
-auto get_rpq_times(std::vector<process> processes)
-{
-    std::vector<int> rtimes, ptimes, qtimes;
-
-    for(auto process : processes)
-        { rtimes.push_back(process.get_time()[0]); }
-
-    for(auto process : processes)
-        { ptimes.push_back(process.get_time()[1]); }
-
-    for(auto process : processes)
-        { qtimes.push_back(process.get_time()[2]); }
-
-    return std::make_tuple(rtimes,ptimes,qtimes);
-}
+#include "annealing.hpp"
 
 std::vector<process> scharge(std::vector<process> processes)
 {
@@ -348,28 +333,4 @@ process getQmax(std::vector<process> processes)
     }
     
     return result;
-}
-
-int rpq_maxspan(std::vector<process> processes)
-{
-    auto rpq_times = get_rpq_times(processes);
-    std::vector<int> rtimes = std::get<0>(rpq_times);
-    std::vector<int> ptimes = std::get<1>(rpq_times);
-    std::vector<int> qtimes = std::get<2>(rpq_times);
-    std::vector<int> maxspan;
-    maxspan.resize(rtimes.size());
-    
-    maxspan[0] = rtimes[0] + ptimes[0];
-    for(unsigned int i=1; i < maxspan.size(); ++i)
-    {
-        if(rtimes[i] > maxspan[i-1])
-            { maxspan[i] = rtimes[i] + ptimes[i]; }
-        else
-            { maxspan[i] = ptimes[i] + maxspan[i-1]; }
-    }
-    
-    for(unsigned int j=0; j < qtimes.size(); ++j)
-        { maxspan[j] += qtimes[j]; }
-    
-    return *std::max_element(maxspan.begin(), maxspan.end());
 }

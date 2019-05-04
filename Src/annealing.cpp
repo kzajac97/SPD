@@ -125,3 +125,57 @@ std::vector<process> simulate_annealing(std::vector<process> & processes, double
     return processes;
 }
 
+std::vector<process> simulate_rpq_annealing(std::vector<process> & processes, double start_temperature, double end_temperature, 
+                                        double acceptance_probabilty, long int iterations, std::string cooling_type, std::string move_type)
+{
+    double current_temperature = (double)start_temperature;
+    std::vector<process> current_processes;
+    for(long int i=0; i < iterations; ++i)
+    {
+        auto index = generateRandomIndices(processes.size());
+        
+        current_processes = processes;
+        
+        switch(hash_move(move_type))
+        {
+            case eSwap: 
+                { std::swap(current_processes[std::get<0>(index)],current_processes[std::get<1>(index)]); }
+            break;
+
+            case eInsert: 
+            {
+                auto element = current_processes[std::get<0>(index)];
+                current_processes.erase(current_processes.begin() + std::get<0>(index));
+                current_processes.insert(current_processes.begin() + std::get<1>(index), element);
+            }
+            break;
+
+            default: throw std::invalid_argument("Unrecognized option"); break;
+        }
+
+        double probability = acceptanceProbabiltySigmoid(rpq_maxspan(processes),rpq_maxspan(current_processes),current_temperature);
+        
+        if(probability >= acceptance_probabilty)
+            { std::swap(processes[std::get<0>(index)],processes[std::get<1>(index)]); }
+
+        switch(hash_cooling(cooling_type))
+        {
+            case eLinear: current_temperature = linear_cooling(start_temperature,i,1/iterations); break;
+            case eExp: current_temperature = exp_cooling(current_temperature,0.9998); break;
+            case eInv: current_temperature = inverse_cooling(i,0.001); break;
+            case eLog: current_temperature = log_coolling(i,1,0) ;break;
+            default: throw std::invalid_argument("Unrecognized option"); break;
+        }
+
+        if(current_temperature < end_temperature)
+            { return processes; }
+
+        //if(i % 1000 == 0)
+        //    { std::cout << maxspan(processes) << ", "; }
+
+        current_processes.clear();
+    }
+
+    return processes;
+}
+

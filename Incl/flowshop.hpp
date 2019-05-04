@@ -5,10 +5,12 @@
 
 #include <iostream>
 #include <vector>
+#include <tuple>
 
 #include "process.hpp"
 #include "utility.hpp"
 
+std::tuple<std::vector<int>,std::vector<int>,std::vector<int> > get_rpq_times(std::vector<process> processes);
 // computes permutations of given process vector
 // <input> process vector 
 // <returns> 2D vector containing process objects
@@ -25,5 +27,6 @@ std::vector<std::vector<int> > maxspan_vector(std::vector<process> processes);
 int maxspan(std::vector<process> processes);
 // accelerated vesrion of maxspan using times from previoulsy comupted task times
 int maxspan_accelerated(std::vector<process> processes, unsigned int start_index, std::vector<std::vector<int> > current_tasks);
+int rpq_maxspan(std::vector<process> processes);
 
 #endif
