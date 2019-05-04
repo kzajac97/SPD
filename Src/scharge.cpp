@@ -1,4 +1,5 @@
 #include "scharge.hpp"
+#include "heap.hpp"
 
 auto get_rpq_times(std::vector<process> processes)
 {
@@ -56,6 +57,108 @@ std::vector<process> scharge(std::vector<process> processes)
     return result;
 }
 
+std::vector<process> scharge_heap(std::vector<process> processes)
+{
+    // vector of processes
+    std::vector<process> result, schelduable_jobs;
+    // get R P and Q times from tuple
+    auto rpq_times = get_rpq_times(processes);
+    std::vector<int> rtimes = std::get<0>(rpq_times);
+    std::vector<int> ptimes = std::get<1>(rpq_times);
+    std::vector<int> qtimes = std::get<2>(rpq_times);
+
+    auto rtimes_lambda = [](auto lhs, auto rhs) { return lhs < rhs; };
+    auto processes_lambda = [](auto lhs, auto rhs) { return lhs.get_time()[0] < rhs.get_time()[0]; };
+    
+    buildHeap(rtimes,0,rtimes.size(),rtimes_lambda);
+    buildHeap(processes,0,processes.size(),processes_lambda);
+
+    int t = rtimes.front();
+
+    while(!processes.empty() || !schelduable_jobs.empty())
+    {
+        while(!processes.empty() && *std::min_element(rtimes.begin(),rtimes.end()) /*rtimes[0]*/ <= t)
+        {
+            unsigned int j = getMinIndex(processes);
+            schelduable_jobs.push_back(processes[j]);
+            processes.erase(processes.begin() + j);
+            rtimes.erase(rtimes.begin() + j);
+            processes.shrink_to_fit();
+            rtimes.shrink_to_fit();
+            heapify(processes,0,processes.size(),processes.size(),processes_lambda);
+            heapify(rtimes,0,rtimes.size(),rtimes.size(),rtimes_lambda);
+        }
+
+        if(schelduable_jobs.empty())
+        { 
+            t = *std::min_element(rtimes.begin(),rtimes.end());
+            heapify(rtimes,0,rtimes.size(),rtimes.size(),rtimes_lambda);
+        }
+
+        else
+        {
+            unsigned int j = getMaxIndex(schelduable_jobs);
+            result.push_back(schelduable_jobs[j]);
+            t += schelduable_jobs[j].get_time()[1];
+            schelduable_jobs.erase(schelduable_jobs.begin() + j);
+            schelduable_jobs.shrink_to_fit();
+        }
+    }
+
+    return result;
+}
+
+std::vector<process> scharge_heap_fast(std::vector<process> processes)
+{
+    // vector of processes
+    std::vector<process> result, schelduable_jobs;
+    // get R P and Q times from tuple
+    auto rpq_times = get_rpq_times(processes);
+    std::vector<int> rtimes = std::get<0>(rpq_times);
+    std::vector<int> ptimes = std::get<1>(rpq_times);
+    std::vector<int> qtimes = std::get<2>(rpq_times);
+
+    auto rtimes_lambda = [](auto lhs, auto rhs) { return lhs < rhs; };
+    auto processes_lambda = [](auto lhs, auto rhs) { return lhs.get_time()[0] < rhs.get_time()[0]; };
+    
+    buildHeap(rtimes,0,rtimes.size(),rtimes_lambda);
+    buildHeap(processes,0,processes.size(),processes_lambda);
+
+    int t = rtimes.front();
+
+    while(!processes.empty() || !schelduable_jobs.empty())
+    {
+        while(!processes.empty() && rtimes.front() <= t)
+        {
+            schelduable_jobs.push_back(processes.front());
+            processes.erase(processes.begin());
+            rtimes.erase(rtimes.begin());
+            processes.shrink_to_fit();
+            rtimes.shrink_to_fit();
+            heapify(processes,0,processes.size(),processes.size(),processes_lambda);
+            heapify(rtimes,0,rtimes.size(),rtimes.size(),rtimes_lambda);
+        }
+
+        if(schelduable_jobs.empty())
+        { 
+            t = rtimes.front();
+            heapify(rtimes,0,rtimes.size(),rtimes.size(),rtimes_lambda);
+        }
+
+        else
+        {
+            unsigned int j = getMaxIndex(schelduable_jobs);
+            result.push_back(schelduable_jobs[j]);
+            t += schelduable_jobs[j].get_time()[1];
+            schelduable_jobs.erase(schelduable_jobs.begin() + j);
+            schelduable_jobs.shrink_to_fit();
+        }
+    }
+
+    return result;
+}
+
+
 int schrage_pmtn(std::vector<process> processes)
 {
     int cmax = 0;
@@ -63,7 +166,7 @@ int schrage_pmtn(std::vector<process> processes)
     int t = 0;
     unsigned int j;
     process jp;
-    process lp(0,{1000,1000,1000});
+    process lp(0,{0,0,0});
 
     auto rpq_times = get_rpq_times(processes);
     std::vector<int> rtimes = std::get<0>(rpq_times);
@@ -79,6 +182,63 @@ int schrage_pmtn(std::vector<process> processes)
             schelduable_jobs.push_back(jp);
             processes.erase(processes.begin() + j);
             processes.shrink_to_fit();
+
+            if(jp.get_time()[0] > lp.get_time()[0])
+            {
+                lp.set_time(t - jp.get_time()[0], 1);
+                t = jp.get_time()[0];
+
+                if(lp.get_time()[1] > 0)
+                    { schelduable_jobs.push_back(lp); } 
+            }
+        }
+
+        if(schelduable_jobs.empty())
+            { t = getMin(processes); }
+        else
+        {
+            jp = getQmax(schelduable_jobs);
+            j = getMaxIndex(schelduable_jobs);
+            schelduable_jobs.erase(schelduable_jobs.begin() + j);
+            schelduable_jobs.shrink_to_fit();
+
+            lp = jp;
+            t += jp.get_time()[1];
+            if(cmax < t + jp.get_time().back())
+                { cmax = t + jp.get_time().back(); }
+        }
+    }
+    
+    return cmax;
+}
+
+int schrage_pmtn_heap(std::vector<process> processes)
+{
+    int cmax = 0;
+    std::vector<process> result, schelduable_jobs;
+    int t = 0;
+    unsigned int j;
+    process jp;
+    process lp(0,{0,0,0});
+
+    auto rpq_times = get_rpq_times(processes);
+    std::vector<int> rtimes = std::get<0>(rpq_times);
+    std::vector<int> ptimes = std::get<1>(rpq_times);
+    std::vector<int> qtimes = std::get<2>(rpq_times);
+
+    auto processes_lambda = [](auto lhs, auto rhs) { return lhs.get_time()[0] < rhs.get_time()[0]; }; 
+    buildHeap(processes,0,processes.size(),processes_lambda);
+
+    while(!processes.empty() || !schelduable_jobs.empty())
+    {
+        while(!processes.empty() && getMin(processes) <= t)
+        {
+            jp = getRmin(processes);
+            j = getMinIndex(processes);
+            schelduable_jobs.push_back(jp);
+            processes.erase(processes.begin() + j);
+            processes.shrink_to_fit();
+            heapify(processes,0,processes.size(),processes.size(),processes_lambda);
 
             if(jp.get_time()[0] > lp.get_time()[0])
             {

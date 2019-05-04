@@ -20,5 +20,8 @@ int getMin(std::vector<process> processes);
 process getRmin(std::vector<process> processes);
 process getQmax(std::vector<process> processes);
 int rpq_maxspan(std::vector<process> processes);
+std::vector<process> scharge_heap(std::vector<process> processes);
+std::vector<process> scharge_heap_fast(std::vector<process> processes);
+int schrage_pmtn_heap(std::vector<process> processes);
 
 #endif
