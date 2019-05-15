@@ -206,3 +206,4 @@ int rpq_maxspan(std::vector<process> processes)
     
     return *std::max_element(maxspan.begin(), maxspan.end());
 }
+
