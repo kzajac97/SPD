@@ -4,52 +4,56 @@
 
 std::vector<process> carlier(std::vector<process> & processes)
 {
-    int u = rpq_maxspan(scharge_heap(processes));
+    int u = rpq_maxspan(scharge_heap(processes)); 
     auto result = processes;
     int upper_bound = rpq_maxspan(processes);
     int lower_bound = 0;
 
+    // if scharge algorthim gives good result
     if(u < upper_bound)
     { 
         upper_bound = u;
-        result = scharge_heap(processes); 
+        result = processes; 
     }
 
-    auto a_task = get_a_task(result);
+    // get reference tasks
     auto b_task = get_b_task(result);
+    auto a_task = get_a_task(result);
     auto c_task = get_c_task(result);
 
+    // if C task is empty
     if(!std::get<2>(c_task))
         { return result; }
     
+    // get vector from C to B 
     std::vector<process> k_tasks(result.begin() + std::get<1>(c_task),result.begin() + std::get<1>(b_task));
+    // get R P Q times of K vector
     auto k_rpq_times = get_rpq_times(k_tasks);
     std::vector<int> krtimes = std::get<0>(k_rpq_times);
     std::vector<int> kptimes = std::get<1>(k_rpq_times);
     std::vector<int> kqtimes = std::get<2>(k_rpq_times);
-
+    // save K vector min times 
     int rk = *std::min_element(krtimes.begin(),krtimes.end()); 
     int qk = *std::min_element(kqtimes.begin(),kqtimes.end());
     int pk = std::accumulate(kptimes.begin(),kptimes.end(),0);
-
+    // if R and P times are greater than C prepare time
     if(rk + pk >  result[std::get<1>(c_task)].get_time()[0])
         { result[std::get<1>(c_task)].set_time(rk + pk,0); }
 
-    lower_bound = schrage_pmtn(result);
+    lower_bound = schrage_pmtn(result); // set lower bound to schare with breaks
     
-    int h_k_tasks = rk + pk + qk;
+    int h_k_tasks = rk + pk + qk; // set maxspans
     auto kc_tasks = k_tasks;
     kc_tasks.push_back(std::get<0>(c_task));
-    
-    auto kc_rpq_times = get_rpq_times(kc_tasks);
+    // Get RPQ times for K vector with C task
+    auto kc_rpq_times = get_rpq_times(kc_tasks); 
     std::vector<int> kcrtimes = std::get<0>(kc_rpq_times);
     std::vector<int> kcptimes = std::get<1>(kc_rpq_times);
     std::vector<int> kcqtimes = std::get<2>(kc_rpq_times);
-
+    // get maxspans
     int rkc = *std::min_element(kcrtimes.begin(),kcrtimes.end()); 
     int qkc = *std::min_element(kcqtimes.begin(),kcqtimes.end());
     int pkc = std::accumulate(kcptimes.begin(),kcptimes.end(),0);
-
     int h_kc_tasks = rkc + qkc + pkc;
 
     if(h_k_tasks > lower_bound)
@@ -61,9 +65,9 @@ std::vector<process> carlier(std::vector<process> & processes)
     ////
     if(lower_bound < upper_bound)
         { result = carlier(result); }
-    
+    // restore C task prepare time
     result[std::get<1>(c_task)].set_time(std::get<0>(c_task).get_time()[0],0);
-
+    
     if(qk + pk > result[std::get<1>(c_task)].get_time().back())
         { result[std::get<1>(c_task)].set_time(qk + pk ,0); }
 
@@ -79,7 +83,6 @@ std::vector<process> carlier(std::vector<process> & processes)
     pkc = std::accumulate(kcptimes.begin(),kcptimes.end(),0);
 
     h_kc_tasks = rkc + qkc + pkc;
-
 
     if(h_k_tasks > lower_bound)
         { lower_bound = h_k_tasks; }
