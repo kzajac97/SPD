@@ -39,7 +39,8 @@ int main(void)
     auto data = utility::readFile(files);
     auto times = utility::createTimes(data);
     auto processes = utility::createProcesses(times);
-    auto result = carlier(processes);
+    std::cout << rpq_maxspan(processes) << "\n";
 
-    std::cout << rpq_maxspan(result) << "\n";
+    std::cout << std::get<1>(get_a_task(processes)) << " " << std::get<1>(get_b_task(processes)) << "\n";
+    std::cout << std::get<1>(get_c_task(processes)) << "\n";    
 }
