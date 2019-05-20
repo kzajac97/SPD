@@ -14,20 +14,21 @@ std::vector<process> carlier(std::vector<process> & processes)
         upper_bound = u;
         result = scharge_heap(processes); 
     }
-
+    // get reference tasks
     auto a_task = get_a_task(result);
     auto b_task = get_b_task(result);
     auto c_task = get_c_task(result);
 
-    if(!std::get<2>(c_task))
+    if(!std::get<2>(c_task)) // if C task is not found
         { return result; }
-    
+    // create K vector
     std::vector<process> k_tasks(result.begin() + std::get<1>(c_task),result.begin() + std::get<1>(b_task));
+    // Get R P and Q times for K vector and extract tuple to vectors 
     auto k_rpq_times = get_rpq_times(k_tasks);
     std::vector<int> krtimes = std::get<0>(k_rpq_times);
     std::vector<int> kptimes = std::get<1>(k_rpq_times);
     std::vector<int> kqtimes = std::get<2>(k_rpq_times);
-
+    // get R and Q times as minimum and P time as sum of all elements
     int rk = *std::min_element(krtimes.begin(),krtimes.end()); 
     int qk = *std::min_element(kqtimes.begin(),kqtimes.end());
     int pk = std::accumulate(kptimes.begin(),kptimes.end(),0);
@@ -36,22 +37,16 @@ std::vector<process> carlier(std::vector<process> & processes)
         { result[std::get<1>(c_task)].set_time(rk + pk,0); }
 
     lower_bound = schrage_pmtn(result);
-    
+
+    // Get R P Q times for K vector with C task inserted    
     int h_k_tasks = rk + pk + qk;
-    auto kc_tasks = k_tasks;
-    kc_tasks.push_back(std::get<0>(c_task));
-    
-    auto kc_rpq_times = get_rpq_times(kc_tasks);
-    std::vector<int> kcrtimes = std::get<0>(kc_rpq_times);
-    std::vector<int> kcptimes = std::get<1>(kc_rpq_times);
-    std::vector<int> kcqtimes = std::get<2>(kc_rpq_times);
-
-    int rkc = *std::min_element(kcrtimes.begin(),kcrtimes.end()); 
-    int qkc = *std::min_element(kcqtimes.begin(),kcqtimes.end());
-    int pkc = std::accumulate(kcptimes.begin(),kcptimes.end(),0);
-
+    int rkc = rk < std::get<0>(c_task).get_time().front() ? rk : std::get<0>(c_task).get_time().front();
+    int qkc = qk < std::get<0>(c_task).get_time().back() ? rk : std::get<0>(c_task).get_time().back();
+    int pkc = pk + std::get<0>(c_task).get_time()[1];
+   
     int h_kc_tasks = rkc + qkc + pkc;
 
+    // Update bounds
     if(h_k_tasks > lower_bound)
         { lower_bound = h_k_tasks; }
     
@@ -68,18 +63,12 @@ std::vector<process> carlier(std::vector<process> & processes)
         { result[std::get<1>(c_task)].set_time(qk + pk ,0); }
 
     lower_bound = schrage_pmtn(result);
-    
-    kc_rpq_times = get_rpq_times(kc_tasks);
-    kcrtimes = std::get<0>(kc_rpq_times);
-    kcptimes = std::get<1>(kc_rpq_times);
-    kcqtimes = std::get<2>(kc_rpq_times);
-
-    rkc = *std::min_element(kcrtimes.begin(),kcrtimes.end()); 
-    qkc = *std::min_element(kcqtimes.begin(),kcqtimes.end());
-    pkc = std::accumulate(kcptimes.begin(),kcptimes.end(),0);
+    // update R P Q times for K vector
+    rkc = rk < std::get<0>(c_task).get_time().front() ? rk : std::get<0>(c_task).get_time().front();
+    qkc = qk < std::get<0>(c_task).get_time().back() ? rk : std::get<0>(c_task).get_time().back();
+    pkc = pk + std::get<0>(c_task).get_time()[1];
 
     h_kc_tasks = rkc + qkc + pkc;
-
 
     if(h_k_tasks > lower_bound)
         { lower_bound = h_k_tasks; }
@@ -93,16 +82,8 @@ std::vector<process> carlier(std::vector<process> & processes)
     result[std::get<1>(c_task)].set_time(std::get<0>(c_task).get_time().back(),2);
 
     // clear memory
-    kc_tasks.clear();
     k_tasks.clear();
     k_tasks.shrink_to_fit();
-    kc_tasks.shrink_to_fit();
-    kcrtimes.clear();
-    kcrtimes.shrink_to_fit();
-    kcptimes.clear();
-    kcptimes.shrink_to_fit();
-    kcqtimes.clear();
-    kcqtimes.shrink_to_fit();
 
     return result;
 }

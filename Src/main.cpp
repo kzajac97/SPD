@@ -34,4 +34,11 @@ int main(void)
     for(auto x : results)
         { std::cout << rpq_maxspan(x) << " "; }
     std::cout << "\n";
+
+    // std::string files = "Data/in50.txt";
+    // auto data = utility::readFile(files);
+    // auto times = utility::createTimes(data);
+    // auto processes = utility::createProcesses(times);
+    // auto results = carlier(processes);
+    // std::cout << rpq_maxspan(results) << "\n";
 }
