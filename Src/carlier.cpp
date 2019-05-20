@@ -4,10 +4,11 @@
 
 std::vector<process> carlier(std::vector<process> & processes)
 {
-    int u = rpq_maxspan(scharge_heap(processes));
+    int u = rpq_maxspan(scharge(processes));
     auto result = processes;
     int upper_bound = rpq_maxspan(processes);
     int lower_bound = 0;
+    std::vector<process> optimal_result = processes;
 
     if(u < upper_bound)
     { 
@@ -20,7 +21,10 @@ std::vector<process> carlier(std::vector<process> & processes)
     auto c_task = get_c_task(result);
 
     if(!std::get<2>(c_task)) // if C task is not found
-        { return result; }
+    { 
+        if(rpq_maxspan(result) < rpq_maxspan(optimal_result))
+            { optimal_result = result; }
+    }
     // create K vector
     std::vector<process> k_tasks(result.begin() + std::get<1>(c_task),result.begin() + std::get<1>(b_task));
     // Get R P and Q times for K vector and extract tuple to vectors 
@@ -76,7 +80,7 @@ std::vector<process> carlier(std::vector<process> & processes)
     if(h_kc_tasks > lower_bound)
         { lower_bound = h_kc_tasks; }
 
-    if(lower_bound > upper_bound)
+    if(lower_bound < upper_bound)
         { result = carlier(result); }
     
     result[std::get<1>(c_task)].set_time(std::get<0>(c_task).get_time().back(),2);
@@ -85,7 +89,7 @@ std::vector<process> carlier(std::vector<process> & processes)
     k_tasks.clear();
     k_tasks.shrink_to_fit();
 
-    return result;
+    return optimal_result;
 }
 
 std::tuple<process,unsigned> get_b_task(std::vector<process> processes)

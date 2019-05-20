@@ -24,7 +24,6 @@ def create_processes(data):
 
 def rpq_maxspan(processes):
     maxspan = [None] * len(processes)
-
     maxspan[0] = processes[0].times[0] + processes[0].times[1]
 
     for i in range(1,len(maxspan)):

@@ -1,4 +1,5 @@
 from Process import *
+from Schrage import *
 
 def get_b_task(processes):
     max_value = rpq_maxspan(processes)
@@ -8,7 +9,7 @@ def get_b_task(processes):
     maxspan[0] = processes[0].times[0] + processes[0].times[1]
     for i in range(1,len(processes)):
         if processes[i].times[0] > maxspan[i - 1]:
-                maxspan[i] = processes[i].times[0] + processes[i].times[1]
+            maxspan[i] = processes[i].times[0] + processes[i].times[1]
         else:
             maxspan[i] = processes[i].times[1] + maxspan[i-1]
 
@@ -57,5 +58,88 @@ def get_c_task(processes):
 
     return processes[index],index,found
 
-def carlier(proceses):
+def carlier(processes):
+    u = rpq_maxspan(schrage(processes[:])) 
+    result = processes
+    upper_bound = rpq_maxspan(processes)
+    lower_bound = 0
+    optimal_result = processes
+
+    if u < upper_bound:
+        upper_bound = u
+        result = schrage(processes[:])
     
+    a_task, a_index = get_a_task(processes)
+    b_task, b_index = get_b_task(processes)
+    c_task, c_index,c_found = get_c_task(processes)
+
+    if c_found == False:
+        if rpq_maxspan(result) < rpq_maxspan(optimal_result):
+            optimal_result = result
+
+    k_tasks = result[c_index:b_index]
+
+    rk = min([process.times[0] for process in k_tasks])
+    qk = min([process.times[2] for process in k_tasks])
+    pk = sum([process.times[1] for process in k_tasks])
+
+    if rk+pk > c_task.times[0]:
+        result[c_index].times[0] = rk + pk
+
+    lower_bound = schrage_pmtn(result[:])
+
+    h_k_tasks = rk + pk + qk
+    
+    if rk < c_task.times[0]:
+        rkc = rk
+    else:
+        rkc = c_task.times[0]
+
+    if qk < c_task.times[2]:
+        qkc = qk
+    else:
+        qkc = c_task.times[2]
+
+    pkc = pk + c_task.times[1]
+
+    h_kc_tasks = rkc + pkc + qkc
+
+    if h_k_tasks > lower_bound:
+        lower_bound = h_k_tasks
+    if h_kc_tasks > lower_bound:
+        lower_bound = h_kc_tasks
+
+    if lower_bound < upper_bound:
+        result = carlier(result)
+
+    result[c_index].times[0] = c_task.times[0]
+
+    if qk + pk > result[c_index].times[2]:
+        result[c_index].times[0] = qk + pk
+
+    lower_bound = schrage_pmtn(result[:])
+
+    if rk < c_task.times[0]:
+        rkc = rk
+    else:
+        rkc = c_task.times[0]
+
+    if qk < c_task.times[2]:
+        qkc = qk
+    else:
+        qkc = c_task.times[2]
+
+    pkc = pk + c_task.times[1]
+
+    if h_k_tasks > lower_bound:
+        lower_bound = h_k_tasks
+    if h_kc_tasks > lower_bound:
+        lower_bound = h_kc_tasks
+
+    if lower_bound < upper_bound:
+        result = carlier(result)
+
+    result[c_index].times[2] = c_task.times[2]
+    
+    print(rpq_maxspan(optimal_result))
+    return optimal_result
