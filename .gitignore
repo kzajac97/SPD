@@ -3,3 +3,4 @@
 *.out
 Scripts\__pycache__\*
 .vscode
+Bin\*
