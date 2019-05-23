@@ -1,3 +1,5 @@
+import copy
+
 from Process import *
 from Schrage import *
 
@@ -59,34 +61,40 @@ def get_c_task(processes):
     return processes[index],index,found
 
 def carlier(processes):
+    print(rpq_maxspan(processes))
+    
     u = rpq_maxspan(schrage(processes[:])) 
-    result = processes
     upper_bound = rpq_maxspan(processes)
     lower_bound = 0
     optimal_result = processes
-
+   
     if u < upper_bound:
         upper_bound = u
-        result = schrage(processes[:])
+        processes = schrage(processes[:])
     
     a_task, a_index = get_a_task(processes)
     b_task, b_index = get_b_task(processes)
     c_task, c_index,c_found = get_c_task(processes)
 
     if c_found == False:
-        if rpq_maxspan(result) < rpq_maxspan(optimal_result):
-            optimal_result = result
+        # return processes
+        if rpq_maxspan(processes) < rpq_maxspan(optimal_result):
+            optimal_result = processes
 
-    k_tasks = result[c_index:b_index]
+    k_tasks = processes[c_index:b_index]
 
     rk = min([process.times[0] for process in k_tasks])
     qk = min([process.times[2] for process in k_tasks])
     pk = sum([process.times[1] for process in k_tasks])
 
     if rk+pk > c_task.times[0]:
-        result[c_index].times[0] = rk + pk
+        processes[c_index].times[0] = rk + pk
 
-    lower_bound = schrage_pmtn(result[:])
+    r_restore = processes[c_index].times[0]
+
+    #processes_copy = copy.deepcopy(processes)
+    #lower_bound = schrage_pmtn(processes_copy)
+    lower_bound = schrage_pmtn(processes[:])
 
     h_k_tasks = rk + pk + qk
     
@@ -110,14 +118,18 @@ def carlier(processes):
         lower_bound = h_kc_tasks
 
     if lower_bound < upper_bound:
-        result = carlier(result)
+        processes = carlier(processes)
 
-    result[c_index].times[0] = c_task.times[0]
+    processes[c_index].times[0] = r_restore
 
-    if qk + pk > result[c_index].times[2]:
-        result[c_index].times[0] = qk + pk
+    if qk + pk > processes[c_index].times[2]:
+        processes[c_index].times[2] = qk + pk
 
-    lower_bound = schrage_pmtn(result[:])
+    q_resotre = processes[c_index].times[2]
+
+    # processes_copy = copy.deepcopy(processes)
+    # lower_bound = schrage_pmtn(processes_copy)
+    lower_bound = schrage_pmtn(processes[:])
 
     if rk < c_task.times[0]:
         rkc = rk
@@ -133,13 +145,62 @@ def carlier(processes):
 
     if h_k_tasks > lower_bound:
         lower_bound = h_k_tasks
+
     if h_kc_tasks > lower_bound:
         lower_bound = h_kc_tasks
 
     if lower_bound < upper_bound:
-        result = carlier(result)
+        processes = carlier(processes)
 
-    result[c_index].times[2] = c_task.times[2]
+    processes[c_index].times[2] = q_resotre
     
-    print(rpq_maxspan(optimal_result))
+    print('end')
     return optimal_result
+
+#def carlier(processes):
+#     u = rpq_maxspan(schrage(processes[:]))
+#     ub = rpq_maxspan(processes)
+#     # optimal_result = processes
+
+#     if u < ub:
+#         ub = u 
+#         processes = schrage(processes)
+
+#     a_task, a_index = get_a_task(processes)
+#     b_task, b_index = get_b_task(processes)
+#     c_task, c_index, c_found = get_c_task(processes)
+
+#     if c_found == False:
+#         return processes
+
+#     k_tasks = processes[c_index:b_index]
+
+#     rk = min([process.times[0] for process in k_tasks])
+#     qk = min([process.times[2] for process in k_tasks])
+#     pk = sum([process.times[1] for process in k_tasks])
+
+#     if rk+pk > c_task.times[0]:
+#         processes[c_index].times[0] = rk + pk
+
+#     r_restore = processes[c_index].times[0]
+
+#     lb = schrage_pmtn(processes[:])
+
+#     if lb < ub:
+#         processes = carlier(processes[:])
+
+#     processes[c_index].times[0] = r_restore
+
+#     if qk + pk > processes[c_index].times[2]:
+#         processes[c_index].times[2] = qk + pk
+
+#     q_restore = processes[c_index].times[2]
+
+#     lb = schrage_pmtn(processes[:])
+
+#     if lb < ub:
+#         processes = carlier(processes[:])
+    
+#     processes[c_index].times[2] = q_restore
+
+#     return processes
