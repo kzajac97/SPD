@@ -166,5 +166,4 @@ class Carlier:
 
     def run_carlier(self,processes):
         processes = self.carlier(processes)
-        print("OUT")
         return min(self.carlier_results)
