@@ -16,7 +16,7 @@ def get_jobs(processes):
 
 	return data
 
-def MinimizeJobshop(processes):
+def MinimizeRpqJobshop(processes):
 	# Create the model.
 	model = cp_model.CpModel()
 
@@ -48,7 +48,7 @@ def MinimizeJobshop(processes):
 		intervals = []
 		for job in all_jobs:
 			for task_id, task in enumerate(jobs_data[job]):
-				if task[0] == machine:
+				if task[0] == machine and job == 1:
 					intervals.append(all_tasks[job, task_id].interval)
 		model.AddNoOverlap(intervals)
 
