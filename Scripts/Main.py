@@ -16,4 +16,5 @@ if __name__ == "__main__":
     for f in files:
         data = read_data(f)
         processes = create_processes(data)
-        MinimizeRpqJobshop(processes)
+        #MinimizeRpqJobshop(processes)
+        MinimizeRpqMilp(processes)

@@ -27,7 +27,7 @@ def MinimizeRpqJobshop(processes):
 
 	jobs_data = get_jobs(processes)
 
-	# Compute horizon
+	# maximal value of variables
 	horizon = sum([sum(process.times) for process in processes])
 
 	task_type = collections.namedtuple('task_type', 'start end interval')
@@ -35,7 +35,7 @@ def MinimizeRpqJobshop(processes):
 
 	# Create jobs.
 	all_tasks = {}
-	for job in all_jobs:
+	for job in range(len(processes)):
 		for task_id, task in enumerate(jobs_data[job]):
 			start_var = model.NewIntVar(0, horizon,'start_%i_%i' % (job, task_id))
 			duration = task[1]
@@ -44,12 +44,13 @@ def MinimizeRpqJobshop(processes):
 			all_tasks[job, task_id] = task_type(start=start_var, end=end_var, interval=interval_var)
 
 	# Create and add disjunctive constraints.
-	for machine in all_machines:
+	for machine in range(len(processes[0].times)):
 		intervals = []
-		for job in all_jobs:
+		for job in range(len(processes)):
 			for task_id, task in enumerate(jobs_data[job]):
-				if task[0] == machine and job == 1:
+				if task[0] == machine and job == 1: # only P times can't overlap in this problem
 					intervals.append(all_tasks[job, task_id].interval)
+		# add constraint
 		model.AddNoOverlap(intervals)
 
 	# Add precedence contraints.
@@ -63,8 +64,8 @@ def MinimizeRpqJobshop(processes):
 	model.Minimize(obj_var)
 	# Solve model.
 	solver = cp_model.CpSolver()
-	print("Solving")
 	solver.StringParameters = "max_time_in_seconds:120.0"
+	print("Solving")
 	status = solver.Solve(model)
 
 	print(solver.ObjectiveValue())
