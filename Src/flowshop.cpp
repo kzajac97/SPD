@@ -144,7 +144,7 @@ std::vector<std::vector<int> > maxspan_vector(std::vector<process> processes)
                 // delay is the longer of this two times
                 tasks[i][j] = (tasks[i-1][j] > tasks[i][j-1]) ?  
                     timespan[i][j] + tasks[i-1][j] : 
-                    tasks[i][j] = timespan[i][j] + tasks[i][j-1]; // long ternary operator
+                    timespan[i][j] + tasks[i][j-1]; // long ternary operator
             }          
         }
     }

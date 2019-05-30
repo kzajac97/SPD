@@ -36,3 +36,22 @@ def rpq_maxspan(processes):
         maxspan[j] += processes[j].times[2]
 
     return max(maxspan)
+
+def maxspan(processes):
+    maxspan = [[None] * len(processes[0].times)] * len(processes)
+
+    for i in range(len(processes)):
+        for j in range(len(processes[i].times)):
+            if i == 0 and j == 0:
+                maxspan[i][j] = processes[i].times[j]
+            elif i == 0 and j > 0:
+                maxspan[i][j] = processes[i].times[j] + maxspan[i][j-1]
+            elif i > 0 and j == 0:
+                maxspan[i][j] = processes[i].times[j] + maxspan[i-1][j]
+            else:
+                if maxspan[i-1][j] > maxspan[i][j-1]:
+                    maxspan[i][j] = processes[i].times[j] + maxspan[i-1][j]
+                else:
+                    maxspan[i][j] = processes[i].times[j] + maxspan[i][j-1]
+
+    return maxspan[-1][-1] # return last element
