@@ -74,11 +74,15 @@ def cp_solve(processes):
 
 	obj_var = model.NewIntVar(0, horizon, 'makespan')
 
+	for i in range(len(processes)):
+		model.Add(all_tasks[i,0].end <= all_tasks[i,1].start)
+		model.Add(all_tasks[i,1].end <= all_tasks[i,2].start)
+
 	model.AddMaxEquality(obj_var, [ all_tasks[i,1].end for i in range(len(processes))])
 
 	model.Minimize(obj_var)
 
-	# Solve model.
+	# Solve model
 	solver = cp_model.CpSolver()
 	status = solver.Solve(model)
 
