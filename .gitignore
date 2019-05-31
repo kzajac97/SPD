@@ -4,3 +4,4 @@
 Scripts\__pycache__\*
 .vscode
 Bin\*
+*.pyc

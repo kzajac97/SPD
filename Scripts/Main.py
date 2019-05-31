@@ -20,5 +20,5 @@ if __name__ == "__main__":
         # MinimizeRpqJobshop(processes)
         # MinimizeRpqMilp(processes)
         print(f)
-        result = Milp(processes)
+        result = cp_solve(processes)
         print(result)
