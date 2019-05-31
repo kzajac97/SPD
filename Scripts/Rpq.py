@@ -42,18 +42,12 @@ def MinimizeRpqJobshop(processes):
 
 		model.AddNoOverlap(intervals)
 
-	# for
-
-	#for job in all_jobs:
-	#	for task_id in range(0, len(jobs_data[job]) - 1):
-	#		model.Add(all_tasks[job, task_id + 1].start >= all_tasks[job, task_id].end)
-
 	obj_var = model.NewIntVar(0, horizon, 'makespan')
 	print(jobs_data[0])
 	model.AddMaxEquality(obj_var, [all_tasks[(job, len(jobs_data[job]) - 1)].end + all_tasks(jobs_data[job]).end[2] for job in all_jobs])
 	model.Minimize(obj_var)
 	solver = cp_model.CpSolver()
-	solver.StringParameters = "max_time_in_seconds:120.0"
+	solver.Parameters = max_time_in_seconds = 120.0
 	print("Solving")
 	status = solver.Solve(model)
 

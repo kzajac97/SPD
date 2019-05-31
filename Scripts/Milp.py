@@ -5,7 +5,8 @@ from Process import *
 def Milp(processes):
     horizon = sum([sum(process.times) for process in processes])
 
-    solver = pywraplp.Solver('simple_mip_program',pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
+    # solver = pywraplp.Solver('simple_mip_program',pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
+    solver = pywraplp.Solver('simple_mip_program',pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
     
     # create varialbes
     alphas_dict = {}
@@ -37,7 +38,12 @@ def Milp(processes):
 
     # solver
     print('Solving')
+    solver.Parameters = max_time_in_seconds = 120.0
     solver.Minimize(cmax) 
     status = solver.Solve()
 
-    print("makespan", solver.Objective().Value())
+    # if status is not pywraplp.Solver.OPTIMAL:
+    #     print('Not Optimal')
+
+    # print("makespan", solver.Objective().Value())
+    return int(solver.Objective().Value())
