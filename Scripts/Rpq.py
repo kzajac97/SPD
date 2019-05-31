@@ -3,6 +3,7 @@ from __future__ import print_function
 import collections
 
 # Import Python wrapper for or-tools CP-SAT solver.
+
 from ortools.sat.python import cp_model
 from ortools.linear_solver import pywraplp
 
@@ -58,7 +59,6 @@ def MinimizeRpqJobshop(processes):
 	task_type = collections.namedtuple('task_type', 'start end interval')
 	assigned_task_type = collections.namedtuple('assigned_task_type','start job index')
 
-	# Create jobs.
 	all_tasks = {}
 	for job in range(len(processes)):
 		for task_id, task in enumerate(jobs_data[job]):
@@ -68,26 +68,25 @@ def MinimizeRpqJobshop(processes):
 			interval_var = model.NewIntervalVar(start_var, duration, end_var, 'interval_%i_%i' % (job, task_id))
 			all_tasks[job, task_id] = task_type(start=start_var, end=end_var, interval=interval_var)
 
-	# Create and add disjunctive constraints.
 	for machine in range(len(processes[0].times)):
 		intervals = []
 		for job in range(len(processes)):
 			for task_id, task in enumerate(jobs_data[job]):
 				if task[0] == machine and job == 1: # only P times can't overlap in this problem
 					intervals.append(all_tasks[job, task_id].interval)
-		# add constraint
+
 		model.AddNoOverlap(intervals)
 
-	# Add precedence contraints.
-	for job in all_jobs:
-		for task_id in range(0, len(jobs_data[job]) - 1):
-			model.Add(all_tasks[job, task_id + 1].start >= all_tasks[job, task_id].end)
+	# for
 
-	# Makespan objective.
+	#for job in all_jobs:
+	#	for task_id in range(0, len(jobs_data[job]) - 1):
+	#		model.Add(all_tasks[job, task_id + 1].start >= all_tasks[job, task_id].end)
+
 	obj_var = model.NewIntVar(0, horizon, 'makespan')
-	model.AddMaxEquality(obj_var, [all_tasks[(job, len(jobs_data[job]) - 1)].end for job in all_jobs])
+	print(jobs_data[0])
+	model.AddMaxEquality(obj_var, [all_tasks[(job, len(jobs_data[job]) - 1)].end + all_tasks(jobs_data[job]).end[2] for job in all_jobs])
 	model.Minimize(obj_var)
-	# Solve model.
 	solver = cp_model.CpSolver()
 	solver.StringParameters = "max_time_in_seconds:120.0"
 	print("Solving")
