@@ -7,43 +7,8 @@ import collections
 from ortools.sat.python import cp_model
 from ortools.linear_solver import pywraplp
 
-def get_jobs(processes):
-	data = []
-	for process in processes:
-		process_data = []
-		for i in range(len(process.times)):
-			process_data.append((i,process.times[i]))
-		data.append(process_data)
-
-	return data
-
-def MinimizeRpqMilp(processes):
-	solver = pywraplp.Solver("Rpq_milp_optimizer",pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING)
-
-	# sum of all task times 
-	horizon = sum([sum(process.times) for process in processes])
-
-	vars = []
-	for i in range(len(processes)):
-		var = solver.IntVar(0.0,horizon,'start_%i' % i)
-		vars.append(var)
-
-	for i in range(len(vars)):
-		solver.Add(vars[i] + processes[i].times[1] >= processes[i].times[0])
-		if i > 0:
-			solver.Add(vars[i] >= vars[i-1])
-
-	solver.Minimize(
-		sum([process.times[0] for process in processes]) 
-		+ sum(vars) 
-		+ sum([process.times[2] for process in processes]))
-	
-	
-	result_status = solver.Solve()
-	print(solver.Objective().Value())
- 
 def MinimizeRpqJobshop(processes):
-	# Create the model.
+    	# Create the model.
 	model = cp_model.CpModel()
 
 	machines_count = len(processes[0].times)

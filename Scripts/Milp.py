@@ -36,17 +36,8 @@ def Milp(processes):
             solver.Add(alphas_dict[i,j] + alphas_dict[j,i] == 1)
 
     # solver
+    print('Solving')
     solver.Minimize(cmax) 
     status = solver.Solve()
 
-    if status is not pywraplp.Solver.OPTIMAL:
-        print("NOT OPTIMAL")
-
     print("makespan", solver.Objective().Value())
-    pi = []
-
-    for i in range(len(starts)):
-        pi.append(i,starts[i].solution_value())
-
-    pi.sort(key = lambda x : x[1])
-    print(pi)
